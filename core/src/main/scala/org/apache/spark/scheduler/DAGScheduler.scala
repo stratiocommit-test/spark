@@ -1007,7 +1007,7 @@ class DAGScheduler(
         runningStages -= stage
         return
     }
-
+    val tokens = KerberosUtil.getHadoopDelegationTokens
     val tasks: Seq[Task[_]] = try {
       stage match {
         case stage: ShuffleMapStage =>
@@ -1016,7 +1016,7 @@ class DAGScheduler(
             val part = stage.rdd.partitions(id)
             new ShuffleMapTask(stage.id, stage.latestInfo.attemptId,
               taskBinary, part, locs, stage.latestInfo.taskMetrics, properties, Option(jobId),
-              Option(sc.applicationId), sc.applicationAttemptId)
+              Option(sc.applicationId), sc.applicationAttemptId, Option(tokens))
           }
 
         case stage: ResultStage =>
@@ -1026,7 +1026,7 @@ class DAGScheduler(
             val locs = taskIdToLocations(id)
             new ResultTask(stage.id, stage.latestInfo.attemptId,
               taskBinary, part, locs, id, properties, stage.latestInfo.taskMetrics,
-              Option(jobId), Option(sc.applicationId), sc.applicationAttemptId)
+              Option(jobId), Option(sc.applicationId), sc.applicationAttemptId, Option(tokens))
           }
       }
     } catch {

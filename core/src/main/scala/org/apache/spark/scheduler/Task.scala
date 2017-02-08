@@ -62,7 +62,8 @@ private[spark] abstract class Task[T](
     @transient var localProperties: Properties = new Properties,
     val jobId: Option[Int] = None,
     val appId: Option[String] = None,
-    val appAttemptId: Option[String] = None) extends Serializable {
+    val appAttemptId: Option[String] = None,
+    val tokens: Option[Array[Byte]] = None) extends Serializable {
 
   /**
    * Called by [[org.apache.spark.executor.Executor]] to run this task.
@@ -96,7 +97,7 @@ private[spark] abstract class Task[T](
       Option(taskAttemptId), Option(attemptNumber)).setCurrentContext()
 
     try {
-      runTask(context)
+      KerberosFunction.executeSecure(tokens, runTask, context)
     } catch {
       case e: Throwable =>
         // Catch all errors; run task failure callbacks, and rethrow the exception.
