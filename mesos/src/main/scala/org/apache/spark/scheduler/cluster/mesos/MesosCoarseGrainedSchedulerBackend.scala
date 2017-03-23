@@ -21,6 +21,8 @@ import java.io.File
 import java.util.{Collections, List => JList}
 import java.util.concurrent.locks.ReentrantLock
 
+import org.apache.spark.security.{VaultHelper, ConfigSecurity}
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -195,6 +197,19 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
         .setValue(value)
         .build())
     }
+
+    if (ConfigSecurity.vaultToken.isDefined) {
+      environment.addVariables(Environment.Variable.newBuilder()
+        .setName("VAULT_TEMP_TOKEN")
+        .setValue(VaultHelper.getTemporalToken(ConfigSecurity.vaultHost.get,
+          ConfigSecurity.vaultToken.get))
+        .build())
+      environment.addVariables(Environment.Variable.newBuilder()
+        .setName("VAULT_HOST")
+        .setValue(ConfigSecurity.vaultHost.get)
+        .build())
+    }
+
     val command = CommandInfo.newBuilder()
       .setEnvironment(environment)
 
@@ -407,17 +422,18 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
 
           val taskCPUs = executorCores(offerCPUs)
           val taskMemory = executorMemory(sc)
+          val taskDisk = executorDisk
 
           slaves.getOrElseUpdate(slaveId, new Slave(offer.getHostname)).taskIDs.add(taskId)
 
           val (resourcesLeft, resourcesToUse) =
-            partitionTaskResources(resources, taskCPUs, taskMemory, taskGPUs)
+            partitionTaskResources(resources, taskCPUs, taskMemory, taskGPUs, taskDisk)
 
           val taskBuilder = MesosTaskInfo.newBuilder()
             .setTaskId(TaskID.newBuilder().setValue(taskId.toString).build())
             .setSlaveId(offer.getSlaveId)
             .setCommand(createCommand(offer, taskCPUs + extraCoresPerExecutor, taskId))
-            .setName("Task " + taskId)
+            .setName("Task-" + taskId)
 
           taskBuilder.addAllResources(resourcesToUse.asJava)
 
@@ -448,8 +464,8 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
       resources: JList[Resource],
       taskCPUs: Int,
       taskMemory: Int,
-      taskGPUs: Int)
-    : (List[Resource], List[Resource]) = {
+      taskGPUs: Int,
+      disk: Option[Int]): (List[Resource], List[Resource]) = {
 
     // partition cpus & mem
     val (afterCPUResources, cpuResourcesToUse) = partitionResources(resources, "cpus", taskCPUs)
@@ -457,15 +473,19 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
       partitionResources(afterCPUResources.asJava, "mem", taskMemory)
     val (afterGPUResources, gpuResourcesToUse) =
       partitionResources(afterMemResources.asJava, "gpus", taskGPUs)
+    val (resourcesLeft, diskResourceToUse) = if (disk.isDefined) {
+      partitionResources(afterGPUResources.asJava, "disk", disk.get)
+    } else (afterGPUResources, List[Resource]())
 
+    //
     // If user specifies port numbers in SparkConfig then consecutive tasks will not be launched
     // on the same host. This essentially means one executor per host.
     // TODO: handle network isolator case
     val (nonPortResources, portResourcesToUse) =
-      partitionPortResources(nonZeroPortValuesFromConfig(sc.conf), afterGPUResources)
+      partitionPortResources(nonZeroPortValuesFromConfig(sc.conf), resourcesLeft)
 
     (nonPortResources,
-      cpuResourcesToUse ++ memResourcesToUse ++ portResourcesToUse ++ gpuResourcesToUse)
+      cpuResourcesToUse ++ memResourcesToUse ++ portResourcesToUse ++ gpuResourcesToUse ++ diskResourceToUse)
   }
 
   private def canLaunchTask(slaveId: String, resources: JList[Resource]): Boolean = {
@@ -488,6 +508,12 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
   private def executorCores(offerCPUs: Int): Int = {
     sc.conf.getInt("spark.executor.cores",
       math.min(offerCPUs, maxCores - totalCoresAcquired))
+  }
+  def executorDisk: Option[Int] = {
+    sc.conf.getOption("spark.mesos.executor.disk") match {
+      case Some(disk) => Option(disk.toInt)
+      case _ => None
+    }
   }
 
   override def statusUpdate(d: org.apache.mesos.SchedulerDriver, status: TaskStatus) {

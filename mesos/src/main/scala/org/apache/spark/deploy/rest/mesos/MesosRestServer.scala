@@ -28,6 +28,7 @@ import org.apache.spark.deploy.Command
 import org.apache.spark.deploy.mesos.MesosDriverDescription
 import org.apache.spark.deploy.rest._
 import org.apache.spark.scheduler.cluster.mesos.MesosClusterScheduler
+import org.apache.spark.security.VaultHelper
 import org.apache.spark.util.Utils
 
 /**
@@ -102,6 +103,25 @@ private[mesos] class MesosSubmitRequestServlet(
     val extraJavaOpts = driverExtraJavaOptions.map(Utils.splitCommandString).getOrElse(Seq.empty)
     val sparkJavaOpts = Utils.sparkJavaOpts(conf)
     val javaOpts = sparkJavaOpts ++ extraJavaOpts
+
+    val sparkPropertiesToSend = if (sparkProperties.get("spark.secret.vault.token").isDefined) {
+      if (sparkProperties.isDefinedAt("spark.secret.vault.host")) {
+        val vaultUrl = sparkProperties("spark.secret.vault.host")
+        val vaultToken = sparkProperties("spark.secret.vault.token")
+        val temporalToken = VaultHelper.getTemporalToken(vaultUrl, vaultToken)
+        logDebug(s"Vault Temp token $temporalToken")
+
+        Map("spark.secret.vault.tempToken" -> temporalToken) ++ request.sparkProperties
+          .filter(_._1 != "spark.secret.vault.token")
+      }
+      else {
+        logDebug("Vault token provided but non vault host" +
+          " had been provided, skipping vault calling")
+        request.sparkProperties
+      }
+    } else {
+      request.sparkProperties
+    }
     val command = new Command(
       mainClass, appArgs, environmentVariables, extraClassPath, extraLibraryPath, javaOpts)
     val actualSuperviseDriver = superviseDriver.map(_.toBoolean).getOrElse(DEFAULT_SUPERVISE)
@@ -112,7 +132,7 @@ private[mesos] class MesosSubmitRequestServlet(
 
     new MesosDriverDescription(
       name, appResource, actualDriverMemory, actualDriverCores, actualSuperviseDriver,
-      command, request.sparkProperties, submissionId, submitDate)
+      command, sparkPropertiesToSend, submissionId, submitDate)
   }
 
   protected override def handleSubmit(

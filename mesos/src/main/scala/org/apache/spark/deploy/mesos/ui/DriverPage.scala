@@ -115,7 +115,12 @@ private[ui] class DriverPage(parent: MesosClusterUI) extends WebUIPage("driver")
   }
 
   private def propertiesRow(properties: collection.Map[String, String]): Seq[Node] = {
-    properties.map { case (k, v) =>
+    properties.map{case (k, v) =>
+      if (k.toLowerCase.contains("password") || k.toLowerCase.contains("secret")) {
+        (k, "******")
+      }
+      else (k, v)
+    }.map { case (k, v) =>
       <tr>
         <td>{k}</td><td>{v}</td>
       </tr>
@@ -133,7 +138,13 @@ private[ui] class DriverPage(parent: MesosClusterUI) extends WebUIPage("driver")
       <td>Class path entries</td><td>{command.classPathEntries.mkString(" ")}</td>
     </tr>
     <tr>
-      <td>Java options</td><td>{command.javaOpts.mkString((" "))}</td>
+      <td>Java options</td><td>{command.javaOpts.map(javaProp => {
+      val Array(k, v) = if (javaProp.split(" ").size == 2)  javaProp.split(" ")
+      else if (javaProp.split("=").size == 2) javaProp.split("=")
+      else Array(javaProp, "")
+      if (k.toLowerCase.contains("password") || k.toLowerCase.contains("secret")) s"$k******"
+      else s"$k $v"
+    }).mkString((" "))}</td>
     </tr>
     <tr>
       <td>Library path entries</td><td>{command.libraryPathEntries.mkString((" "))}</td>

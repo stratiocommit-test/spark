@@ -21,6 +21,9 @@ import java.io.{File, PrintStream}
 import java.lang.reflect.{InvocationTargetException, Modifier, UndeclaredThrowableException}
 import java.net.URL
 import java.security.PrivilegedExceptionAction
+import java.text.ParseException
+
+import org.apache.spark.security.ConfigSecurity
 
 import scala.annotation.tailrec
 import scala.collection.mutable.{ArrayBuffer, HashMap, Map}
@@ -158,11 +161,12 @@ object SparkSubmit {
    */
   @tailrec
   private def submit(args: SparkSubmitArguments): Unit = {
-    val (childArgs, childClasspath, sysProps, childMainClass) = prepareSubmitEnvironment(args)
+    val (childArgs, childClasspath, sysProps,
+    childMainClass, principal, keytab) = prepareSubmitEnvironment(args)
 
     def doRunMain(): Unit = {
-      if (args.principal != null && args.keytab!= null) {
-        KerberosUser.securize(args.principal, args.keytab)
+      if (principal != null && keytab!= null) {
+        KerberosUser.securize(principal, keytab)
       }
       if (args.proxyUser != null) {
         val proxyUser = UserGroupInformation.createProxyUser(args.proxyUser,
@@ -228,7 +232,7 @@ object SparkSubmit {
    * Exposed for testing.
    */
   private[deploy] def prepareSubmitEnvironment(args: SparkSubmitArguments)
-      : (Seq[String], Seq[String], Map[String, String], String) = {
+      : (Seq[String], Seq[String], Map[String, String], String, String, String) = {
     // Return values
     val childArgs = new ArrayBuffer[String]()
     val childClasspath = new ArrayBuffer[String]()
@@ -651,7 +655,22 @@ object SparkSubmit {
       sysProps("spark.submit.pyFiles") = formattedPyFiles
     }
 
-    (childArgs, childClasspath, sysProps, childMainClass)
+    val (pincipal, keytab) = if (
+      args.sparkProperties.get("spark.secret.vault.tempToken").isDefined) {
+      val vaultTempToken = args.sparkProperties.get("spark.secret.vault.tempToken")
+      val enviroment = ConfigSecurity.prepareEnviroment(vaultTempToken,
+        args.sparkProperties.get("spark.secret.vault.host"))
+      val principal = enviroment.get("principal").getOrElse(null)
+      val keytab = enviroment.get("keytabPath").getOrElse(null)
+      enviroment.filter(keyValue => {
+        val (key, _) = keyValue
+        key.contains("location") || key.contains("password")
+      }).foreach{case (key, value) => sysProps.put(key, value)}
+      (principal, keytab)
+    } else (args.principal, args.keytab)
+
+
+    (childArgs, childClasspath, sysProps, childMainClass, pincipal, keytab)
   }
 
   /**
