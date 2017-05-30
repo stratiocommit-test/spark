@@ -21,8 +21,6 @@ import java.io.File
 import java.util.{Collections, List => JList}
 import java.util.concurrent.locks.ReentrantLock
 
-import org.apache.spark.security.{VaultHelper, ConfigSecurity}
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -35,6 +33,7 @@ import org.apache.spark.network.shuffle.mesos.MesosExternalShuffleClient
 import org.apache.spark.rpc.RpcEndpointAddress
 import org.apache.spark.scheduler.{SlaveLost, TaskSchedulerImpl}
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
+import org.apache.spark.security.{ConfigSecurity, VaultHelper}
 import org.apache.spark.util.Utils
 
 /**
@@ -215,6 +214,10 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
 
     val uri = conf.getOption("spark.executor.uri")
       .orElse(Option(System.getenv("SPARK_EXECUTOR_URI")))
+    var commandInfo = s" --driver-url $driverURL" +
+      s" --executor-id $taskId" +
+      s" --cores $numCores" +
+      s" --app-id $appId"
 
     if (uri.isEmpty) {
       val executorSparkHome = conf.getOption("spark.mesos.executor.home")
@@ -223,14 +226,19 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
           throw new SparkException("Executor Spark home `spark.mesos.executor.home` is not set!")
         }
       val runScript = new File(executorSparkHome, "./bin/spark-class").getPath
+      val userNetworkName = conf.getOption("spark.mesos.docker.network.name")
+      if(userNetworkName.isDefined) {
+        commandInfo = s"$commandInfo" +
+                  s" --user-network ${userNetworkName.get}"
+      }
+      else {
+        commandInfo = s"$commandInfo" +
+          s" --hostname ${offer.getHostname}"
+      }
       command.setValue(
         "%s \"%s\" org.apache.spark.executor.CoarseGrainedExecutorBackend"
           .format(prefixEnv, runScript) +
-        s" --driver-url $driverURL" +
-        s" --executor-id $taskId" +
-        s" --hostname ${offer.getHostname}" +
-        s" --cores $numCores" +
-        s" --app-id $appId")
+          commandInfo)
     } else {
       // Grab everything to the first '.'. We'll use that and '*' to
       // glob the directory "correctly".
@@ -238,11 +246,7 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
       command.setValue(
         s"cd $basename*; $prefixEnv " +
         "./bin/spark-class org.apache.spark.executor.CoarseGrainedExecutorBackend" +
-        s" --driver-url $driverURL" +
-        s" --executor-id $taskId" +
-        s" --hostname ${offer.getHostname}" +
-        s" --cores $numCores" +
-        s" --app-id $appId")
+          commandInfo)
       command.addUris(CommandInfo.URI.newBuilder().setValue(uri.get).setCache(useFetcherCache))
     }
 
@@ -485,7 +489,8 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
       partitionPortResources(nonZeroPortValuesFromConfig(sc.conf), resourcesLeft)
 
     (nonPortResources,
-      cpuResourcesToUse ++ memResourcesToUse ++ portResourcesToUse ++ gpuResourcesToUse ++ diskResourceToUse)
+      cpuResourcesToUse ++ memResourcesToUse ++ portResourcesToUse
+        ++ gpuResourcesToUse ++ diskResourceToUse)
   }
 
   private def canLaunchTask(slaveId: String, resources: JList[Resource]): Boolean = {
