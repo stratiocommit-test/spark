@@ -8,12 +8,12 @@ hose {
     BUILDTOOL = 'make'
     DEVTIMEOUT = 40
     RELEASETIMEOUT = 40
-    PKGMODULESNAMES = ['spark-krb-dispatcher-support']
+    PKGMODULESNAMES = ['spark-krb-calico']
 
     DEV = { config ->
 
         doPackage(config)
-	    doDocker(config)
+	doDocker(config)
 
      }
 }
