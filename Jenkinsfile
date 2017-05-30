@@ -3,7 +3,7 @@
 hose {
     MAIL = 'support'
     SLACKTEAM = 'stratiosecurity'
-    MODULE = 'spark-krb-dispatcher-support'
+    MODULE = 'spark-krb-calico'
     REPOSITORY = 'spark'
     BUILDTOOL = 'make'
     DEVTIMEOUT = 40
