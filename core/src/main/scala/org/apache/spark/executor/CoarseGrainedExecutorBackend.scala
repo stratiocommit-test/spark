@@ -17,7 +17,7 @@
 
 package org.apache.spark.executor
 
-import java.net.URL
+import java.net.{InetAddress, URL}
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -33,8 +33,8 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.rpc._
 import org.apache.spark.scheduler.{ExecutorLossReason, TaskDescription}
 import org.apache.spark.scheduler.cluster.CoarseGrainedClusterMessages._
-import org.apache.spark.serializer.SerializerInstance
 import org.apache.spark.security.ConfigSecurity
+import org.apache.spark.serializer.SerializerInstance
 import org.apache.spark.util.{ThreadUtils, Utils}
 
 private[spark] class CoarseGrainedExecutorBackend(
@@ -265,6 +265,11 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
           // Worker url is used in spark standalone mode to enforce fate-sharing with worker
           workerUrl = Some(value)
           argv = tail
+        case ("--user-network") :: value :: tail =>
+          val executorIp = InetAddress.getLocalHost.getHostAddress
+          logInfo(s"userNetwork $value defined setting executorIP to $executorIp")
+          hostname = executorIp
+          argv = tail
         case ("--user-class-path") :: value :: tail =>
           userClassPath += new URL(value)
           argv = tail
@@ -276,6 +281,8 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
           printUsageAndExit()
       }
     }
+
+
 
     if (driverUrl == null || executorId == null || hostname == null || cores <= 0 ||
       appId == null) {
@@ -299,6 +306,7 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
       |   --cores <cores>
       |   --app-id <appid>
       |   --worker-url <workerUrl>
+      |   --user-network <networkName>
       |   --user-class-path <url>
       |""".stripMargin)
     // scalastyle:on println

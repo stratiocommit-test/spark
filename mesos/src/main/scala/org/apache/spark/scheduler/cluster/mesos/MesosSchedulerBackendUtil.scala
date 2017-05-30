@@ -17,8 +17,9 @@
 
 package org.apache.spark.scheduler.cluster.mesos
 
-import org.apache.mesos.Protos.{ContainerInfo, Image, Volume}
+import org.apache.mesos.Protos.{ContainerInfo, Image, NetworkInfo, Volume}
 import org.apache.mesos.Protos.ContainerInfo.DockerInfo
+import org.apache.mesos.Protos.ContainerInfo.DockerInfo.Network
 
 import org.apache.spark.{SparkConf, SparkException}
 import org.apache.spark.internal.Logging
@@ -108,7 +109,8 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
       containerizer: String,
       forcePullImage: Boolean = false,
       volumes: Option[List[Volume]] = None,
-      portmaps: Option[List[ContainerInfo.DockerInfo.PortMapping]] = None): Unit = {
+      portmaps: Option[List[ContainerInfo.DockerInfo.PortMapping]] = None,
+      networkName: Option[String] = None): Unit = {
 
     containerizer match {
       case "docker" =>
@@ -119,7 +121,13 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
         // TODO (mgummelt): Remove this. Portmaps have no effect,
         //                  as we don't support bridge networking.
         portmaps.foreach(_.foreach(docker.addPortMappings))
-        container.setDocker(docker)
+
+        if (networkName.isDefined) {
+          val name = networkName.get
+          container.setDocker(docker.setNetwork(Network.USER))
+            .addNetworkInfos(NetworkInfo.newBuilder().setName(name).build())
+        } else container.setDocker(docker)
+
       case "mesos" =>
         container.setType(ContainerInfo.Type.MESOS)
         val imageProto = Image.newBuilder()
@@ -127,6 +135,11 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
           .setDocker(Image.Docker.newBuilder().setName(image))
           .setCached(!forcePullImage)
         container.setMesos(ContainerInfo.MesosInfo.newBuilder().setImage(imageProto))
+        ContainerInfo.MesosInfo.newBuilder()
+        if (networkName.isDefined) {
+          val name = networkName.get
+          container.addNetworkInfos(NetworkInfo.newBuilder().setName(name).build())
+        }
       case _ =>
         throw new SparkException(
           "spark.mesos.containerizer must be one of {\"docker\", \"mesos\"}")
@@ -151,15 +164,18 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
     val portmaps = conf
       .getOption("spark.mesos.executor.docker.portmaps")
       .map(parsePortMappingsSpec)
+    val networkName = conf.getOption("spark.mesos.docker.network.name")
 
     val containerizer = conf.get("spark.mesos.containerizer", "docker")
+
     addDockerInfo(
       builder,
       imageName,
       containerizer,
       forcePullImage = forcePullImage,
       volumes = volumes,
-      portmaps = portmaps)
+      portmaps = portmaps,
+      networkName)
     logDebug("setupContainerDockerInfo: using docker image: " + imageName)
   }
 }

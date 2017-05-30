@@ -17,8 +17,9 @@
 
 package org.apache.spark.scheduler
 
-import org.apache.hadoop.security.{Credentials, UserGroupInformation}
-import org.apache.spark.{SparkConf, SparkEnv, SparkException}
+import org.apache.hadoop.security.UserGroupInformation
+
+import org.apache.spark.SparkConf
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
 
