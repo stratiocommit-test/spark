@@ -3,12 +3,12 @@
 hose {
     MAIL = 'support'
     SLACKTEAM = 'stratiosecurity'
-    MODULE = 'spark-krb-calico'
+    MODULE = 'spark-stratio'
     REPOSITORY = 'spark'
     BUILDTOOL = 'make'
     DEVTIMEOUT = 40
     RELEASETIMEOUT = 40
-    PKGMODULESNAMES = ['spark-krb-calico']
+    PKGMODULESNAMES = ['spark-stratio-2_11-R2']
 
     DEV = { config ->
 
