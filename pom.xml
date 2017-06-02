@@ -24,7 +24,7 @@
     <artifactId>apache</artifactId>
     <version>14</version>
   </parent>
-  <groupId>org.apache.spark</groupId>
+  <groupId>com.stratio.spark</groupId>
   <artifactId>spark-parent_2.11</artifactId>
   <version>2.1.0</version>
   <packaging>pom</packaging>
@@ -289,7 +289,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.apache.spark</groupId>
+        <groupId>com.stratio.spark</groupId>
         <artifactId>spark-tags_${scala.binary.version}</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -2468,7 +2468,7 @@
         <jdk>[1.8,)</jdk>
       </activation>
       <modules>
-        <module>external/java8-tests</module>
+      <!--  <module>external/java8-tests</module>-->
       </modules>
     </profile>
 
