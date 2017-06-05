@@ -8,7 +8,7 @@ hose {
     BUILDTOOL = 'make'
     DEVTIMEOUT = 40
     RELEASETIMEOUT = 40
-    PKGMODULESNAMES = ['spark-stratio-2_11-R2']
+    PKGMODULESNAMES = ['spark-stratio-2_11-r2']
 
     DEV = { config ->
 
