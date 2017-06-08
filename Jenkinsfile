@@ -3,7 +3,7 @@
 hose {
     MAIL = 'support'
     SLACKTEAM = 'stratiosecurity'
-    MODULE = 'spark-stratio'
+    MODULE = 'stratio-spark'
     REPOSITORY = 'spark'
     BUILDTOOL = 'make'
     DEVTIMEOUT = 40
@@ -13,7 +13,7 @@ hose {
     DEV = { config ->
 
         doPackage(config)
-	doDocker(config)
+	    doDocker(config)
 
      }
 }
