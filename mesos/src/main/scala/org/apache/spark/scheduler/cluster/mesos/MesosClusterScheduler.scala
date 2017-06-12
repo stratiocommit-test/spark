@@ -535,7 +535,8 @@ private[spark] class MesosClusterScheduler(
     desc.conf.getOption("spark.mesos.executor.docker.image").foreach { image =>
       MesosSchedulerBackendUtil.setupContainerBuilderDockerInfo(image,
         desc.conf,
-        taskInfo.getContainerBuilder)
+        taskInfo.getContainerBuilder,
+      desc.conf.getOption("spark.mesos.driver.docker.network.name"))
     }
 
     taskInfo.build
