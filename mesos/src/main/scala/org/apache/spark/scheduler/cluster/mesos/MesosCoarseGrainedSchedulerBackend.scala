@@ -226,7 +226,7 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
           throw new SparkException("Executor Spark home `spark.mesos.executor.home` is not set!")
         }
       val runScript = new File(executorSparkHome, "./bin/spark-class").getPath
-      val userNetworkName = conf.getOption("spark.mesos.docker.network.name")
+      val userNetworkName = conf.getOption("spark.mesos.executor.docker.network.name")
       if(userNetworkName.isDefined) {
         commandInfo = s"$commandInfo" +
                   s" --user-network ${userNetworkName.get}"
@@ -445,7 +445,8 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
             MesosSchedulerBackendUtil.setupContainerBuilderDockerInfo(
               image,
               sc.conf,
-              taskBuilder.getContainerBuilder
+              taskBuilder.getContainerBuilder,
+              sc.conf.getOption("spark.mesos.executor.docker.network.name")
             )
           }
 
