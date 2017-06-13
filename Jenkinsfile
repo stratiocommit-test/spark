@@ -13,8 +13,8 @@ hose {
     DEV = { config ->
 
         doPackage(config)
-	    doDocker(conf: config, dockerfile:"DockerfileDispatcher")
-        doDocker(conf: config, dockerfile:"DockerfileHistory", image:"spark-stratio-2_11-r2")
+	doDocker(conf: config, dockerfile:"DockerfileDispatcher")
+        doDocker(conf: config, dockerfile:"DockerfileHistory", image:"spark-stratio-history-server-r2")
 
      }
 }
