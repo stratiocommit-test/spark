@@ -159,7 +159,8 @@ private[spark] class MesosFineGrainedSchedulerBackend(
       MesosSchedulerBackendUtil.setupContainerBuilderDockerInfo(
         image,
         sc.conf,
-        executorInfo.getContainerBuilder()
+        executorInfo.getContainerBuilder(),
+        sc.conf.getOption("spark.mesos.executor.docker.network.name")
       )
     }
 

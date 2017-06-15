@@ -154,7 +154,8 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
   def setupContainerBuilderDockerInfo(
     imageName: String,
     conf: SparkConf,
-    builder: ContainerInfo.Builder): Unit = {
+    builder: ContainerInfo.Builder,
+    networkName: Option[String] = None): Unit = {
     val forcePullImage = conf
       .getOption("spark.mesos.executor.docker.forcePullImage")
       .exists(_.equals("true"))
@@ -164,7 +165,6 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
     val portmaps = conf
       .getOption("spark.mesos.executor.docker.portmaps")
       .map(parsePortMappingsSpec)
-    val networkName = conf.getOption("spark.mesos.docker.network.name")
 
     val containerizer = conf.get("spark.mesos.containerizer", "docker")
 
