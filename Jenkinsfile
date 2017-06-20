@@ -8,13 +8,13 @@ hose {
     BUILDTOOL = 'make'
     DEVTIMEOUT = 40
     RELEASETIMEOUT = 40
-    PKGMODULESNAMES = ['spark-stratio-r2']
+    PKGMODULESNAMES = ['spark-stratio-develop']
 
     DEV = { config ->
 
         doPackage(config)
 	doDocker(conf: config, dockerfile:"DockerfileDispatcher")
-        doDocker(conf: config, dockerfile:"DockerfileHistory", image:"spark-stratio-history-server-r2")
+        doDocker(conf: config, dockerfile:"DockerfileHistory", image:"spark-stratio-history-server-develop")
 
      }
 }
