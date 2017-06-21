@@ -40,7 +40,7 @@ object KerberosUtil  extends Logging {
 
   def getHadoopDelegationTokens : Array[Byte] = {
     val hadoopConf = SparkHadoopUtil.get.conf
-    if (hadoopConf.get("hadoop.security.authentication") == "Kerberos") {
+    if (hadoopConf.get("hadoop.security.authentication").toLowerCase == "kerberos") {
       val ugi = proxyUser match {
         case Some(user) => user
         case None => UserGroupInformation.getLoginUser
