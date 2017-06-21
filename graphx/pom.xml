@@ -39,13 +39,13 @@
       <artifactId>spark-core_${scala.binary.version}</artifactId>
       <version>${project.version}</version>
     </dependency>
-<!--    <dependency>
+    <dependency>
       <groupId>com.stratio.spark</groupId>
       <artifactId>spark-core_${scala.binary.version}</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
-    </dependency>-->
+    </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
       <artifactId>spark-mllib-local_${scala.binary.version}</artifactId>

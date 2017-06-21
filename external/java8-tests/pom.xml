@@ -33,7 +33,7 @@
   </properties>
 
  <dependencies>
-<!--    <dependency>
+    <dependency>
       <groupId>com.stratio.spark</groupId>
       <artifactId>spark-core_${scala.binary.version}</artifactId>
       <version>${project.version}</version>
@@ -68,7 +68,7 @@
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
-    </dependency>-->
+    </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
       <artifactId>spark-tags_${scala.binary.version}</artifactId>
