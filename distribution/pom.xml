@@ -32,7 +32,7 @@
                             <executable>bash</executable>
                             <arguments>
                                 <argument>-xe</argument>
-                                <argument>${basedir}/dev/make-distribution.sh</argument>
+                                <argument>${basedir}/../dev/make-distribution.sh</argument>
                             </arguments>
                         </configuration>
                     </execution>
