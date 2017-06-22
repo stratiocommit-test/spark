@@ -5,8 +5,8 @@ hose {
     SLACKTEAM = 'stratiosecurity'
     MODULE = 'stratio-spark'
     REPOSITORY = 'spark'
-    DEVTIMEOUT = 40
-    RELEASETIMEOUT = 40
+    DEVTIMEOUT = 200
+    RELEASETIMEOUT = 200
     BUILDTOOLVERSION = '3.5.0'
     PKGMODULESNAMES = ['spark-stratio-develop']
 
