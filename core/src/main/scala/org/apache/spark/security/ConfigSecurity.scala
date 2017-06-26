@@ -71,6 +71,7 @@ object ConfigSecurity extends Logging{
         case key if key.toLowerCase.contains(sparkSecurityPrefix + "hdfs") => "hdfs"
         case key if key.toLowerCase.contains(sparkSecurityPrefix + "kerberos") => "kerberos"
         case key if key.toLowerCase.contains(sparkSecurityPrefix + "datastore") => "datastore"
+        case key if key.toLowerCase.contains(sparkSecurityPrefix + "kafka") => "kafka"
         case _ => ""
 
       }
@@ -109,6 +110,10 @@ object ConfigSecurity extends Logging{
             vaultToken,
             options)
           case "datastore" => SSLConfig.prepareEnvironment(vaultHost,
+            vaultToken,
+            SSLConfig.sslTypeDataStore,
+            options)
+          case "kafka" => SSLConfig.prepareEnvironment(vaultHost,
             vaultToken,
             SSLConfig.sslTypeDataStore,
             options)

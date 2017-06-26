@@ -189,7 +189,6 @@ private[spark] class SecurityManager(
   extends Logging with SecretKeyHolder {
 
   import SecurityManager._
-  logInfo("************** STARTING SECURITY CONTEXT *******************")
   // allow all users/groups to have view/modify permissions
   private val WILDCARD_ACL = "*"
 
@@ -259,8 +258,7 @@ private[spark] class SecurityManager(
   // SSL configuration for the file server. This is used by Utils.setupSecureURLConnection().
   val fileServerSSLOptions = getSSLOptions("fs")
   val dataStoreSSLOptions = getSSLOptions("datastore")
-  logInfo(s"************ FS ENABLE -> ${fileServerSSLOptions.enabled}" +
-    s" ***** DS ENABLE -> ${dataStoreSSLOptions.enabled}")
+
   val (sslSocketFactory, hostnameVerifier) =
     if (fileServerSSLOptions.enabled || dataStoreSSLOptions.enabled) {
 
@@ -281,25 +279,21 @@ private[spark] class SecurityManager(
     require(fileServerSSLOptions.protocol.isDefined || dataStoreSSLOptions.protocol.isDefined,
       "spark.ssl.protocol is required when enabling SSL connections.")
 
-   val sslContext =
-     if (fileServerSSLOptions.enabled && fileServerSSLOptions.protocol.isDefined) {
-       SSLContext.getInstance(fileServerSSLOptions.protocol.get)
-    } else {
-       logInfo("****************** DATASTORE *****************")
-         logInfo(s"*********** PROTOCOL  ${dataStoreSSLOptions.protocol.get}")
-         SSLContext.getInstance(dataStoreSSLOptions.protocol.get)
-     }
+      val sslContext =
+        if (fileServerSSLOptions.enabled && fileServerSSLOptions.protocol.isDefined) {
+          logInfo("Initializing SSL Context for FileServer")
+          SSLContext.getInstance(fileServerSSLOptions.protocol.get)
+        } else {
+          logInfo("Initializing SSL Context for Datastore")
+          SSLContext.getInstance(dataStoreSSLOptions.protocol.get)
+        }
       sslContext.init(null, trustStoreManagers.getOrElse(credulousTrustStoreManagers), null)
-      logInfo("******************** SSL CONTEXT ***************")
-
-      logInfo(sslContext.getDefaultSSLParameters.getProtocols.toString)
       val hostVerifier = new HostnameVerifier {
       override def verify(s: String, sslSession: SSLSession): Boolean = true
     }
 
     (Some(sslContext.getSocketFactory), Some(hostVerifier))
   } else {
-    logInfo("************************ ELSE *******************")
       (None, None)
   }
 
@@ -344,13 +338,12 @@ private[spark] class SecurityManager(
         }
 
       case (false, true) =>
+        logInfo("Initializing options for a SSL connection")
         for (trustStore <- dsSSLOptions.trustStore) yield {
           val input = Files.asByteSource(dsSSLOptions.trustStore.get).openStream()
-          logInfo("************************** TRUSTSTORE1 *******************")
           try {
             val ks = KeyStore.getInstance(KeyStore.getDefaultType)
             ks.load(input, dsSSLOptions.trustStorePassword.get.toCharArray)
-            logInfo("************************** KEYSTORE *******************")
 
             val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm)
             tmf.init(ks)
