@@ -8,7 +8,7 @@ hose {
     DEVTIMEOUT = 200
     RELEASETIMEOUT = 200
     BUILDTOOLVERSION = '3.5.0'
-    PKGMODULESNAMES = ['spark-stratio-develop']
+    PKGMODULESNAMES = ['stratio-spark']
 
 	
     DEV = { config ->
