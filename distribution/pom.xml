@@ -11,7 +11,7 @@
 <dependencies>
     <dependency>
         <groupId>com.stratio.spark</groupId>
-        <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
+        <artifactId>spark-mesos_2.11</artifactId>
         <version>${project.version}</version>
     </dependency>
 </dependencies>

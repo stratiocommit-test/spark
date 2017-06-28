@@ -2354,6 +2354,30 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.17</version>
+        <configuration>
+          <verbose>false</verbose>
+          <failOnViolation>false</failOnViolation>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <failOnWarning>false</failOnWarning>
+          <sourceDirectories>${basedir}/src/main/java,${basedir}/src/main/scala</sourceDirectories>
+          <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+          <configLocation>dev/checkstyle.xml</configLocation>
+          <outputFile>${basedir}/target/checkstyle-output.xml</outputFile>
+          <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+          <outputEncoding>${project.reporting.outputEncoding}</outputEncoding>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -2547,8 +2571,10 @@
     <profile>
       <id>hadoop-2.7</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
+          <file>
+              <missing>target/dummy</missing>
+          </file>
+        </activation>
       <properties>
         <hadoop.version>2.7.3</hadoop.version>
         <jets3t.version>0.9.3</jets3t.version>
@@ -2567,9 +2593,11 @@
 
     <profile>
       <id>mesos</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
+        <activation>
+          <file>
+            <missing>target/dummy</missing>
+          </file>
+        </activation>
       <modules>
         <module>mesos</module>
       </modules>
@@ -2789,9 +2817,11 @@
     </profile>
     <profile>
       <id>sparkr</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
+       <activation>
+          <file>
+              <missing>target/dummy</missing>
+          </file>
+        </activation>
     </profile>
   </profiles>
 </project>

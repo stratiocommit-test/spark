@@ -140,6 +140,11 @@
     </profile>
     <profile>
       <id>mesos</id>
+      <activation>
+        <file>
+          <missing>target/dummy</missing>
+        </file>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>com.stratio.spark</groupId>
