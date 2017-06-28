@@ -10,14 +10,16 @@ hose {
     BUILDTOOLVERSION = '3.5.0'
     PKGMODULESNAMES = ['stratio-spark']
 
-
     DEV = { config ->
 
         doPackage(config)
-        //doUT(config)
-        doDocker(conf: config, dockerfile:"DockerfileDispatcher")
-        doDocker(conf: config, dockerfile:"DockerfileHistory", image:"stratio-spark-history-server")
-        doDeploy(config)
-
+       // doUT(config)
+        parallel(DOCKER1: {
+                    doDocker(conf: config, dockerfile:"DockerfileDispatcher")
+                }, DEPLOY: {
+                    doDeploy(config)
+                }, DOCKER2: {
+                     doDocker(conf: config, dockerfile:"DockerfileHistory", image:"spark-stratio-history-server")
+        }, failFast: config.FAILFAST)
      }
 }
