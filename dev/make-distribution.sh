@@ -31,7 +31,7 @@ set -x
 SPARK_HOME="$(cd "`dirname "$0"`/.."; pwd)"
 DISTDIR="$SPARK_HOME/dist"
 
-VERSION=grep -Po -m2 '<version>\K[^<]*' pom.xml | tail -n1
+VERSION=$(grep -Po -m2 '<version>\K[^<]*' pom.xml | tail -n1)
 echo "Making spark-${VERSION}-bin-stratio.tgz"
 
 
