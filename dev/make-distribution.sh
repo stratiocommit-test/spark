@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -31,7 +31,9 @@ set -x
 SPARK_HOME="$(cd "`dirname "$0"`/.."; pwd)"
 DISTDIR="$SPARK_HOME/dist"
 
+VERSION=grep -Po -m2 '<version>\K[^<]*' pom.xml | tail -n1
 echo "Making spark-${VERSION}-bin-stratio.tgz"
+
 
 # Build uber fat JAR
 cd "$SPARK_HOME"
