@@ -52,9 +52,8 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${basedir}/spark-${project.version}-bin-stratio</file>
+                                    <file>${basedir}/${project.version}/spark-${project.version}-bin-stratio.tgz</file>
                                     <type>tgz</type>
-                                    <classifier>optional</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>
