@@ -52,7 +52,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>../spark-${project.version}-bin-stratio</file>
+                                    <file>${basedir}/spark-${project.version}-bin-stratio</file>
                                     <type>tgz</type>
                                     <classifier>optional</classifier>
                                 </artifact>
