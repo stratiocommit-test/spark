@@ -33,6 +33,7 @@
                             <arguments>
                                 <argument>-xe</argument>
                                 <argument>${basedir}/../dev/make-distribution.sh</argument>
+                                <argument>${project.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>
