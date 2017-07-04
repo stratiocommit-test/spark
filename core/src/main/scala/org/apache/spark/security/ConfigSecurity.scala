@@ -21,23 +21,27 @@ import org.apache.spark.internal.Logging
 object ConfigSecurity extends Logging{
 
   var vaultToken: Option[String] = None
-  var vaultHost: Option[String] = Option(System.getenv("VAULT_HOST"))
+  val vaultHost: Option[String] = sys.env.get("VAULT_HOSTS")
+  val vaultUri: Option[String] = {
+    (sys.env.get("VAULT_PROTOCOL"), vaultHost, sys.env.get("VAULT_PORT")) match {
+      case (Some(vaultProtocol), Some(vaultHost), Some(vaultPort)) =>
+        Option(s"$vaultProtocol://$vaultHost:$vaultPort")
+      case _ => None
+    }
+  }
 
-  def prepareEnvironment(vaultTempToken: Option[String] = None,
+  def prepareEnvironment(vaultAppToken: Option[String] = None,
                          vaulHost: Option[String] = None): Map[String, String] = {
 
     logDebug(s"env VAR: ${sys.env.mkString("\n")}")
     val secretOptionsMap = ConfigSecurity.extractSecretFromEnv(sys.env)
     logDebug(s"secretOptionsMap: ${secretOptionsMap.mkString("\n")}")
     loadingConf(secretOptionsMap)
-    vaultToken = if (vaultTempToken.isDefined) {
-      if (!vaultHost.isDefined) vaultHost = vaulHost
-      Option(VaultHelper.getRealToken(vaultHost.get, vaultTempToken.get))
-    } else Option(System.getenv("VAULT_TOKEN"))
+    vaultToken = if (vaultToken.isDefined) vaultAppToken else Option(System.getenv("VAULT_TOKEN"))
     if(vaultToken.isDefined) {
-      require(vaultHost.isDefined, "A proper vault host is required")
+      require(vaultUri.isDefined, "A proper vault host is required")
       logDebug(s"env VAR: ${sys.env.mkString("\n")}")
-      prepareEnvironment(vaultHost.get, vaultToken.get, secretOptionsMap)
+      prepareEnvironment(vaultUri.get, vaultToken.get, secretOptionsMap)
     }
     else Map()
   }
@@ -115,7 +119,7 @@ object ConfigSecurity extends Logging{
             options)
           case "kafka" => SSLConfig.prepareEnvironment(vaultHost,
             vaultToken,
-            SSLConfig.sslTypeDataStore,
+            SSLConfig.sslTypeKafkaStore,
             options)
           case _ => Map[String, String]()
        }

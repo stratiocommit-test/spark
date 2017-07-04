@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -xe
 
 # This file is sourced when running various Spark programs.
 # Copy it as spark-env.sh and edit that to configure Spark for your site.
@@ -7,39 +7,64 @@ cd $MESOS_SANDBOX
 
 MESOS_NATIVE_JAVA_LIBRARY=/usr/lib/libmesos.so
 
-if [ "${SPARK_VIRTUAL_USER_NETWORK}" != "" ]; then
+if [ "${SPARK_VIRTUAL_USER_NETWORK}" = "true" ]; then
    HOST="$(hostname --all-ip-addresses|xargs)"
    echo "Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
    export LIBPROCESS_IP=$HOST
 fi
 
-if [ "${SPARK_SSL_SECURITY_ENABLED}" == "true" ]; then
-    source /opt/spark/dist/kms_utils-0.2.1.sh
+if [ "${SPARK_DATASTORE_SSL_ENABLE}" == "true" ]; then
+    source /root/kms_utils-0.2.1.sh
 
     VAULT_HOSTS=$VAULT_HOST
     export SPARK_SSL_CERT_PATH="/tmp"
     SERVICE_ID=$APP_NAME
     INSTANCE=$APP_NAME
+    VAULT_URI="$VAULT_PROTOCOL://$VAULT_HOSTS:$VAULT_PORT"
+  
+   echo "VAULT_HOSTS: ${VAULT_HOSTS} SPARK_SSL_CERT_PATH: ${SPARK_SSL_CERT_PATH} SERVICE_ID: ${SERVICE_ID} INSTANCE; ${INSTANCE}"
+
+   echo "VAULT_ROLE_ID: $VAULT_ROLE_ID"
 
     #0--- IF VAULT_ROLE_ID IS NOT EMPTY [!-z $YOUR_VAR] IT MEANS THAT WE ARE DEALING WITH SPARK DRIVER
-    if [! -z "$VAULT_ROLE_ID"]; then
+    if [ ! -z "$VAULT_ROLE_ID" ]; then
+        echo "Vault role id proved, signing in"
         login
     else
         #1--- FROM TEMP TOKEN GET APP TOKEN
-        VAULT_TOKEN=$(curl -k -L -XPOST -H "X-Vault-Token:$VAULT_TEMP_TOKEN" "$VAULT_HOSTS/v1/sys/wrapping/unwrap" -s| python -m json.tool | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["token"]')
+        echo "No vault role ID provided, unwrapping OTT"
+        VAULT_TOKEN=$(curl -k -L -XPOST -H "X-Vault-Token:$VAULT_TEMP_TOKEN" "$VAULT_URI/v1/sys/wrapping/unwrap" -s| python -m json.tool | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["data"]["token"]')
     fi
+
+    echo "VAULT_TOKEN: $VAULT_TOKEN"
 
     #2--- GET SECRETS WITH APP TOKEN
     getCert "userland" "$INSTANCE" "$SERVICE_ID" "PEM" $SPARK_SSL_CERT_PATH
-    getCAbundle $SPARK_SSL_CERT_PATH "PEM"
+
+    #GET CA-BUNDLE for given CA
+    #getCAbundle $SPARK_SSL_CERT_PATH "PEM"
+    JSON_KEY="${CA_NAME}_crt"
+    CA_BUNDLE=$(curl -k -XGET -H "X-Vault-Token:$VAULT_TOKEN" "$VAULT_URI/v1/ca-trust/certificates/$CA_NAME" -s |  jq -cMSr --arg fqdn "" ".data[\"$JSON_KEY\"]")
+
+    echo "$CA_BUNDLE" > ${SPARK_SSL_CERT_PATH}/caroot.crt
+    sed -i 's/-----BEGIN CERTIFICATE-----/-----BEGIN CERTIFICATE-----\n/g' ${SPARK_SSL_CERT_PATH}/caroot.crt
+    sed -i 's/-----END CERTIFICATE-----/\n-----END CERTIFICATE-----\n/g' ${SPARK_SSL_CERT_PATH}/caroot.crt
+    sed -i 's/-----END CERTIFICATE----------BEGIN CERTIFICATE-----/-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----/g'  ${SPARK_SSL_CERT_PATH}/caroot.crt
+
+
 
     #3--- RESTORE TEMP TOKEN
-    export VAULT_TEMP_TOKEN=$(curl -k -L -XPOST -H "X-Vault-Wrap-TTL: 6000" -H "X-Vault-Token:$VAULT_TOKEN" -d "{\"token\": \"$VAULT_TOKEN\" }" "$VAULT_HOSTS/v1/sys/wrapping/wrap" -s| python -m json.tool | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["wrap_info"]["token"]')
+    export VAULT_TEMP_TOKEN=$(curl -k -L -XPOST -H "X-Vault-Wrap-TTL: 6000" -H "X-Vault-Token:$VAULT_TOKEN" -d "{\"token\": \"$VAULT_TOKEN\" }" "$VAULT_URI/v1/sys/wrapping/wrap" -s| python -m json.tool | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["wrap_info"]["token"]')
 
-    openssl pkcs8 -topk8 -inform pem -in "${SPARK_SSL_CERT_PATH}/${SERVICE_ID}.key" -outform der -nocrypt -out "${SPARK_SSL_CERT_PATH}/pkcs8.key"
+    echo "VAULT_TEMP_TOKEN: $VAULT_TEMP_TOKEN"
+
+    fold -w64 "${SPARK_SSL_CERT_PATH}/${SERVICE_ID}.key" >> "${SPARK_SSL_CERT_PATH}/aux.key"
+
+    mv "${SPARK_SSL_CERT_PATH}/aux.key" "${SPARK_SSL_CERT_PATH}/${SERVICE_ID}.key"
+
+    openssl pkcs8 -topk8 -inform pem -in "${SPARK_SSL_CERT_PATH}/${SERVICE_ID}.key" -outform der -nocrypt -out "${SPARK_SSL_CERT_PATH}/key.pkcs8"
 
     mv $SPARK_SSL_CERT_PATH/${SERVICE_ID}.pem $SPARK_SSL_CERT_PATH/cert.crt
-    mv $SPARK_SSL_CERT_PATH/ca-bundle.pem $SPARK_SSL_CERT_PATH/caroot.crt
 
 fi
 

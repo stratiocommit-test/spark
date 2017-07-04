@@ -48,7 +48,7 @@ import org.apache.spark.api.r.RUtils
 import org.apache.spark.deploy.rest._
 import org.apache.spark.launcher.SparkLauncher
 import org.apache.spark.scheduler.{KerberosUser, KerberosUtil}
-import org.apache.spark.security.ConfigSecurity
+import org.apache.spark.security.{ConfigSecurity, VaultHelper}
 import org.apache.spark.util.{ChildFirstURLClassLoader, MutableURLClassLoader, Utils}
 
 /**
@@ -655,16 +655,31 @@ object SparkSubmit {
     }
 
     val (pincipal, keytab) = if (
-      args.sparkProperties.get("spark.secret.vault.tempToken").isDefined) {
-      val vaultTempToken = args.sparkProperties.get("spark.secret.vault.tempToken")
-      val enviroment = ConfigSecurity.prepareEnvironment(vaultTempToken,
-        args.sparkProperties.get("spark.secret.vault.host"))
-      val principal = enviroment.get("principal").getOrElse(args.principal)
-      val keytab = enviroment.get("keytabPath").getOrElse(args.keytab)
-      enviroment.foreach{case (key, value) => sysProps.put(key, value)}
+      (args.sparkProperties.get("spark.secret.roleID").isDefined &&
+        args.sparkProperties.get("spark.secret.secretID").isDefined)
+        || args.sparkProperties.get("spark.secret.vault.tempToken").isDefined
+        || sys.env.get("VAULT_TEMP_TOKEN").isDefined) {
+
+      val vaultUrl = s"${args.sparkProperties("spark.secret.vault.protocol")}://" +
+        s"${args.sparkProperties("spark.secret.vault.hosts").split(",")
+          .map(host => s"$host:${args.sparkProperties("spark.secret.vault.port")}").mkString(",")}"
+      val vaultToken = if (args.sparkProperties.get("spark.secret.vault.tempToken").isDefined
+        || sys.env.get("VAULT_TEMP_TOKEN").isDefined) {
+        VaultHelper.getRealToken(vaultUrl, args.sparkProperties.getOrElse(
+          "spark.secret.vault.tempToken", sys.env("VAULT_TEMP_TOKEN")))
+      } else {
+        val roleID = args.sparkProperties("spark.secret.roleID")
+        val secretID = args.sparkProperties("spark.secret.secretID")
+        VaultHelper.getTokenFromAppRole(vaultUrl, roleID, secretID)
+      }
+
+      val environment = ConfigSecurity.prepareEnvironment(Option(vaultToken), Option(vaultUrl))
+      val principal = environment.get("principal").getOrElse(args.principal)
+      val keytab = environment.get("keytabPath").getOrElse(args.keytab)
+
+      environment.foreach{case (key, value) => sysProps.put(key, value)}
       (principal, keytab)
     } else (args.principal, args.keytab)
-
 
     (childArgs, childClasspath, sysProps, childMainClass, pincipal, keytab)
   }
