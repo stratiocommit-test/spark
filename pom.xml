@@ -2348,6 +2348,7 @@
         </configuration>
         <executions>
           <execution>
+            <phase>test-compile</phase>
             <goals>
               <goal>check</goal>
             </goals>
