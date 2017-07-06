@@ -1,4 +1,4 @@
-FROM centos:7
+FROM qa.stratio.com/centos:7
 
 ARG VERSION
 
