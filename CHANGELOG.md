@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0.0 (upcoming)
+
+* Pending changelog
+
 ## 2.1.0.0 (upcoming)
 
 * Spark-vault interactions
