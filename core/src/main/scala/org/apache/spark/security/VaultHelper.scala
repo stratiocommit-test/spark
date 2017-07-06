@@ -66,7 +66,7 @@ object VaultHelper extends Logging {
     logDebug(s"Requesting Secret ID from Vault: $requestUrl")
     HTTPHelper.executePost(requestUrl, "data",
       Some(Seq(("X-Vault-Token", token.get))))("secret_id").asInstanceOf[String]
-    }
+  }
 
   def getTemporalToken(vaultHost: String, token: String): String = {
     val requestUrl = s"$vaultHost/v1/sys/wrapping/wrap"
@@ -90,6 +90,7 @@ object VaultHelper extends Logging {
     (keytab64, principal)
   }
 
+  @deprecated
   def getRootCA(vaultUrl: String, token: String): String = {
     val certVaultPath = "/v1/ca-trust/certificates/"
     val requestUrl = s"$vaultUrl/$certVaultPath"
@@ -97,12 +98,23 @@ object VaultHelper extends Logging {
 
     logDebug(s"Requesting Cert List: $listCertKeysVaultPath")
     val keys = HTTPHelper.executeGet(listCertKeysVaultPath,
-      "data", Some(Seq(("X-Vault-Token", token))))("pass").asInstanceOf[List[String]]
+      "data", Some(Seq(("X-Vault-Token", token))))("keys").asInstanceOf[List[String]]
 
     keys.flatMap(key => {
       HTTPHelper.executeGet(s"$requestUrl$key",
         "data", Some(Seq(("X-Vault-Token", token)))).find(_._1.endsWith("_crt"))
     }).map(_._2).mkString
+  }
+
+  def getTrustStore(vaultUrl: String, token: String, certVaultPath: String): String = {
+    val requestUrl = s"$vaultUrl/$certVaultPath"
+    val truststoreVaultPath = s"$requestUrl"
+
+    logDebug(s"Requesting truststore: $truststoreVaultPath")
+    val data = HTTPHelper.executeGet(requestUrl,
+      "data", Some(Seq(("X-Vault-Token", token))))
+    val trustStore = data.find(_._1.endsWith("_crt")).get._2.asInstanceOf[String]
+    trustStore
   }
 
   def getCertPassFromVault(vaultUrl: String, token: String): String = {
