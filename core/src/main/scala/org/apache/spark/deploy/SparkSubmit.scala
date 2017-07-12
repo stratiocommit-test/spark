@@ -676,23 +676,19 @@ object SparkSubmit {
 
     val sysEnvToken = sys.env.get("VAULT_TEMP_TOKEN")
 
-    val vaultUrl = s"${args.sparkProperties ("spark.secret.vault.protocol")}://" +
-      s"${
-        args.sparkProperties ("spark.secret.vault.hosts").split (",")
-          .map (host => s"$host:${
-            args.sparkProperties ("spark.secret.vault.port")
-          }").mkString (",")
-      }"
+    val vaultProtocol = args.sparkProperties.get("spark.secret.vault.protocol")
+    val vaulthosts = args.sparkProperties.get("spark.secret.vault.hosts")
+    val vaultPort = args.sparkProperties.get("spark.secret.vault.port")
 
-
-    val (pincipal, keytab) =
+     val (pincipal, keytab) =
       (mesosRoleEnv, sparkRoleOpts, tempToken, sysEnvToken) match {
 
         case ((roleIdEnv, secretIdEnv), (roleIdProp, secretIdProp), _, _)
           if ((roleIdEnv.isDefined || roleIdProp.isDefined) &&
             (secretIdEnv.isDefined || secretIdProp.isDefined)) =>
-          //scalastyle:off
-          println("Role ID and SecretId found")
+          val vaultUrl = s"${vaultProtocol.get}://${vaulthosts.get.split(",")
+            .map(host => s"$host:${vaultPort.get}").mkString(",")}"
+
           val roleId = roleIdEnv.getOrElse(roleIdProp.get)
           val secretId = secretIdEnv.getOrElse(secretIdProp.get)
           val vaultToken = VaultHelper.getTokenFromAppRole (vaultUrl, roleId, secretId)
@@ -708,8 +704,8 @@ object SparkSubmit {
 
         case (_, _, tempTokenProp, tempTokenEnv)
           if (tempTokenProp.isDefined || tempTokenEnv.isDefined) =>
-          //scalastyle:off
-          println("TempToken found")
+          val vaultUrl = s"${vaultProtocol.get}://${vaulthosts.get.split(",")
+            .map(host => s"$host:${vaultPort.get}").mkString(",")}"
           val tempToken = tempTokenProp.getOrElse(tempTokenEnv.get)
           val vaultToken = VaultHelper.getRealToken (vaultUrl, tempToken)
           val environment = ConfigSecurity.prepareEnvironment(
