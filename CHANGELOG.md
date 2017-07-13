@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.0 (upcoming)
+## 2.1.0.0 (July 13, 2017)
 
 * Spark-vault interactions
 * SDN compatibility and isolation
