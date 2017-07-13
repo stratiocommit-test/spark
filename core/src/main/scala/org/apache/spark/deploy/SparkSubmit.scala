@@ -673,21 +673,22 @@ object SparkSubmit {
 
     val tempToken = args.sparkProperties.get("spark.secret.vault.tempToken")
 
-
     val sysEnvToken = sys.env.get("VAULT_TEMP_TOKEN")
 
     val vaultProtocol = args.sparkProperties.get("spark.secret.vault.protocol")
-    val vaulthosts = args.sparkProperties.get("spark.secret.vault.hosts")
+    val vaultHosts = args.sparkProperties.get("spark.secret.vault.hosts")
     val vaultPort = args.sparkProperties.get("spark.secret.vault.port")
 
      val (pincipal, keytab) =
-      (mesosRoleEnv, sparkRoleOpts, tempToken, sysEnvToken) match {
+      (mesosRoleEnv, sparkRoleOpts, tempToken, sysEnvToken,
+        vaultProtocol, vaultHosts, vaultPort) match {
 
-        case ((roleIdEnv, secretIdEnv), (roleIdProp, secretIdProp), _, _)
+        case ((roleIdEnv, secretIdEnv), (roleIdProp, secretIdProp), _, _,
+        Some(protocol), Some(hosts), Some(port))
           if ((roleIdEnv.isDefined || roleIdProp.isDefined) &&
             (secretIdEnv.isDefined || secretIdProp.isDefined)) =>
-          val vaultUrl = s"${vaultProtocol.get}://${vaulthosts.get.split(",")
-            .map(host => s"$host:${vaultPort.get}").mkString(",")}"
+          val vaultUrl = s"$protocol://${hosts.split(",")
+            .map(host => s"$host:$port").mkString(",")}"
 
           val roleId = roleIdEnv.getOrElse(roleIdProp.get)
           val secretId = secretIdEnv.getOrElse(secretIdProp.get)
@@ -702,10 +703,10 @@ object SparkSubmit {
           }
           (principal, keytab)
 
-        case (_, _, tempTokenProp, tempTokenEnv)
+        case (_, _, tempTokenProp, tempTokenEnv, Some(protocol), Some(hosts), Some(port))
           if (tempTokenProp.isDefined || tempTokenEnv.isDefined) =>
-          val vaultUrl = s"${vaultProtocol.get}://${vaulthosts.get.split(",")
-            .map(host => s"$host:${vaultPort.get}").mkString(",")}"
+          val vaultUrl = s"$protocol://${hosts.split(",")
+            .map(host => s"$host:${port}").mkString(",")}"
           val tempToken = tempTokenProp.getOrElse(tempTokenEnv.get)
           val vaultToken = VaultHelper.getRealToken (vaultUrl, tempToken)
           val environment = ConfigSecurity.prepareEnvironment(
