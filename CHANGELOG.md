@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.1 (Upcoming)
+## 2.1.0.1 (upcoming)
 
 * Refactor vault variables
 
