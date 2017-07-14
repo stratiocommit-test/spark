@@ -49,8 +49,9 @@ private[spark] class MesosRestServer(
     require((masterConf.getOption("spark.secret.vault.protocol").isDefined
       && masterConf.getOption("spark.secret.vault.hosts").isDefined
       && masterConf.getOption("spark.secret.vault.port").isDefined),
-      "You are attempt a login in Vault but no vault obtained," +
-      " please confiure spark.secret.vault.protocol, spark.vault.host and spark.secret.vault.port" +
+      "You are attempting to login in Vault but no Vault obtained," +
+      " please configure spark.secret.vault.protocol," +
+        " spark.vault.host and spark.secret.vault.port" +
         " in your Stratio Spark Dispatcher instance")
     val vaultUrl = s"${masterConf.get("spark.secret.vault.protocol")}://" +
       s"${masterConf.get("spark.secret.vault.hosts").split(",")
@@ -73,7 +74,6 @@ private[mesos] class MesosSubmitRequestServlet(
     conf: SparkConf)
   extends SubmitRequestServlet {
 
-  private lazy val vaultHost = conf.getOption("spark.vault.host")
   private val DEFAULT_SUPERVISE = false
   private val DEFAULT_MEMORY = Utils.DEFAULT_DRIVER_MEM_MB // mb
   private val DEFAULT_CORES = 1.0
@@ -121,7 +121,9 @@ private[mesos] class MesosSubmitRequestServlet(
     val javaOpts = sparkJavaOpts ++ extraJavaOpts
 
     val securitySparkOpts: Map[String, String] = {
-      if (sparkProperties.get("spark.secret.vault.hosts").isDefined) {
+      if (sparkProperties.get("spark.secret.vault.hosts").isDefined
+      && sparkProperties.get("spark.secret.vault.protocol").isDefined
+      && sparkProperties.get("spark.secret.vault.port").isDefined) {
         val vaultUrl = s"${sparkProperties("spark.secret.vault.protocol")}://" +
           s"${sparkProperties("spark.secret.vault.hosts").split(",")
             .map(host => s"$host:${sparkProperties("spark.secret.vault.port")}").mkString(",")}"

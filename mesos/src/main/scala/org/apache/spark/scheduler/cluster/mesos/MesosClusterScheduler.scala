@@ -684,6 +684,14 @@ private[spark] class MesosClusterScheduler(
           val nextRetry = new Date(new Date().getTime + waitTimeSec * 1000L)
           val sparkProperties = state.driverDescription.conf.getAll.toMap
 
+          require((sparkProperties.get("spark.secret.vault.protocol").isDefined
+            && sparkProperties.get("spark.secret.vault.hosts").isDefined
+            && sparkProperties.get("spark.secret.vault.port").isDefined),
+            "You are attempting to login in Vault but no Vault obtained," +
+              " please configure spark.secret.vault.protocol," +
+              " spark.vault.host and spark.secret.vault.port" +
+              " in your Stratio Spark Dispatcher instance")
+
           val vaultUrl = s"${sparkProperties("spark.secret.vault.protocol")}://" +
             s"${sparkProperties("spark.secret.vault.hosts").split(",")
               .map(host => s"$host:${sparkProperties("spark.secret.vault.port")}").mkString(",")}"

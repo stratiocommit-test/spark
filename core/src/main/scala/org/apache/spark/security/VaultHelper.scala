@@ -25,10 +25,10 @@ object VaultHelper extends Logging {
   lazy val jsonRoleSecretTemplate: String = "{ \"role_id\" : \"_replace_role_\"," +
     " \"secret_id\" : \"_replace_secret_\"}"
 
-  def getTokenFromAppRole(vaultHost: String,
+  def getTokenFromAppRole(vaultUrl: String,
                           roleId: String,
                           secretId: String): String = {
-    val requestUrl = s"$vaultHost/v1/auth/approle/login"
+    val requestUrl = s"$vaultUrl/v1/auth/approle/login"
     logDebug(s"Requesting login from app and role: $requestUrl")
     val replace: String = jsonRoleSecretTemplate.replace("_replace_role_", roleId)
       .replace("_replace_secret_", secretId)
@@ -39,12 +39,12 @@ object VaultHelper extends Logging {
       None, Some(jsonAppRole))("client_token").asInstanceOf[String]
   }
 
-  def getRoleIdFromVault(vaultHost: String,
+  def getRoleIdFromVault(vaultUrl: String,
                          role: String): String = {
-    val requestUrl = s"$vaultHost/v1/auth/approle/role/$role/role-id"
+    val requestUrl = s"$vaultUrl/v1/auth/approle/role/$role/role-id"
     if (!token.isDefined) token = {
       logDebug(s"Requesting token from app role:")
-      Option(VaultHelper.getTokenFromAppRole(vaultHost,
+      Option(VaultHelper.getTokenFromAppRole(vaultUrl,
         sys.env("VAULT_ROLE_ID"),
         sys.env("VAULT_SECRET_ID")))
     }
@@ -53,12 +53,12 @@ object VaultHelper extends Logging {
       Some(Seq(("X-Vault-Token", token.get))))("role_id").asInstanceOf[String]
   }
 
-  def getSecretIdFromVault(vaultHost: String,
+  def getSecretIdFromVault(vaultUrl: String,
                            role: String): String = {
-    val requestUrl = s"$vaultHost/v1/auth/approle/role/$role/secret-id"
+    val requestUrl = s"$vaultUrl/v1/auth/approle/role/$role/secret-id"
     if (!token.isDefined) token = {
       logDebug(s"Requesting token from app role:")
-      Option(VaultHelper.getTokenFromAppRole(vaultHost,
+      Option(VaultHelper.getTokenFromAppRole(vaultUrl,
         sys.env("VAULT_ROLE_ID"),
         sys.env("VAULT_SECRET_ID")))
     }
@@ -68,8 +68,8 @@ object VaultHelper extends Logging {
       Some(Seq(("X-Vault-Token", token.get))))("secret_id").asInstanceOf[String]
   }
 
-  def getTemporalToken(vaultHost: String, token: String): String = {
-    val requestUrl = s"$vaultHost/v1/sys/wrapping/wrap"
+  def getTemporalToken(vaultUrl: String, token: String): String = {
+    val requestUrl = s"$vaultUrl/v1/sys/wrapping/wrap"
     logDebug(s"Requesting temporal token: $requestUrl")
 
     val jsonToken = jsonTempTokenTemplate.replace("_replace_", token)
