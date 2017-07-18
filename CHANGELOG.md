@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.1 (upcoming)
+## 2.1.0.1 (July 18, 2017)
 
 * Refactor vault variables
 
