@@ -9,9 +9,56 @@
 <packaging>pom</packaging>
 <name>Spark tgz distribution</name>
 <dependencies>
+    <!--Trying to make reactor build this module the last one-->
     <dependency>
         <groupId>com.stratio.spark</groupId>
         <artifactId>spark-mesos_2.11</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-core_${scala.binary.version}</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-mllib_${scala.binary.version}</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-graphx_${scala.binary.version}</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-sql_${scala.binary.version}</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-repl_${scala.binary.version}</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-assembly_2.11</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+    </dependency>
+    <dependency>
+        <groupId>com.stratio.spark</groupId>
+        <artifactId>spark-examples_2.11</artifactId>
         <version>${project.version}</version>
     </dependency>
 </dependencies>
