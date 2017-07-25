@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.2 (upcoming)
+## 2.1.0.2 (July 25, 2017)
 
 * Dynamic Authentication for History Server
 * SDN compatibility and isolation for History Server
