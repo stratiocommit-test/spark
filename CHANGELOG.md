@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.3 (upcoming)
+## 2.1.0.3 (July 26, 2017)
 
 * Fix History Server env vars.
 
