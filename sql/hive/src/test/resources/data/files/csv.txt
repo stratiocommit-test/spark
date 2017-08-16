@@ -1,3 +1,13 @@
+====
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved
+
+    This software is a modification of the original software Apache Spark licensed under the Apache 2.0
+    license, a copy of which is below. This software contains proprietary information of
+    Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled,
+    without express written authorization from Stratio Big Data Inc., Sucursal en España.
+====
+
 why hello there,42,3,100,1412341,true,42.43,85.23423424,alpha:beta:gamma,Earth#42:Control#86:Bob#31,17:true:Abe Linkedin,BLUE,72,,bc
 another record,98,4,101,9999999,false,99.89,0.00000009,beta,Earth#101,1134:false:wazzup,RED,\N,,ef
 third record,45,5,102,999999999,true,89.99,0.00000000000009,alpha:gamma,Earth#237:Bob#723,102:false:BNL,GREEN,\N,,hi

@@ -1,2 +1,12 @@
+====
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved
+
+    This software is a modification of the original software Apache Spark licensed under the Apache 2.0
+    license, a copy of which is below. This software contains proprietary information of
+    Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled,
+    without express written authorization from Stratio Big Data Inc., Sucursal en España.
+====
+
 true|10|100|1000|10000|4.0|20.0|2.2222|1969-12-31 15:59:58.174|1970-01-01 00:00:00|hello|hello|k1:v1,k2:v2|100,200|{10, "foo"}
 true|20|200|2000|20000|8.0|40.0|4.2222|1970-12-31 15:59:58.174|1971-01-01 00:00:00|||k3:v3,k4:v4|200,300|{20, "bar"}

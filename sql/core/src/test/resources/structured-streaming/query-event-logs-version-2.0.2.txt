@@ -1,3 +1,13 @@
+====
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved
+
+    This software is a modification of the original software Apache Spark licensed under the Apache 2.0
+    license, a copy of which is below. This software contains proprietary information of
+    Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled,
+    without express written authorization from Stratio Big Data Inc., Sucursal en España.
+====
+
 {"Event":"org.apache.spark.sql.streaming.StreamingQueryListener$QueryStartedEvent","queryStatus":{"name":"query-1","id":1,"timestamp":1480491481350,"inputRate":0.0,"processingRate":0.0,"latency":null,"sourceStatuses":[{"description":"FileStreamSource[file:/Users/zsx/stream]","offsetDesc":"-","inputRate":0.0,"processingRate":0.0,"triggerDetails":{}}],"sinkStatus":{"description":"FileSink[/Users/zsx/stream2]","offsetDesc":"[-]"},"triggerDetails":{}}}
 {"Event":"org.apache.spark.sql.streaming.StreamingQueryListener$QueryProgressEvent","queryStatus":{"name":"query-1","id":1,"timestamp":1480491493386,"inputRate":83.33333333333333,"processingRate":0.5773672055427251,"latency":1738.0,"sourceStatuses":[{"description":"FileStreamSource[file:/Users/zsx/stream]","offsetDesc":"#0","inputRate":83.33333333333333,"processingRate":0.5773672055427251,"triggerDetails":{"latency.getBatch.source":"39","numRows.input.source":"1","latency.getOffset.source":"91","triggerId":"0"}}],"sinkStatus":{"description":"FileSink[/Users/zsx/stream2]","offsetDesc":"[#0]"},"triggerDetails":{"timestamp.afterGetBatch":"1480491491817","latency.offsetLogWrite":"26","timestamp.triggerStart":"1480491491653","triggerId":"0","timestamp.triggerFinish":"1480491493385","latency.fullTrigger":"1732","latency.getBatch.total":"44","timestamp.afterGetOffset":"1480491491772","numRows.input.total":"1","isTriggerActive":"false","latency.optimizer":"406","latency.getOffset.total":"91","isDataPresentInTrigger":"true"}}}
 {"Event":"org.apache.spark.sql.streaming.StreamingQueryListener$QueryTerminatedEvent","queryStatus":{"name":"query-1","id":1,"timestamp":1480491532753,"inputRate":0.0,"processingRate":0.0,"latency":null,"sourceStatuses":[{"description":"FileStreamSource[file:/Users/zsx/stream]","offsetDesc":"#0","inputRate":0.0,"processingRate":0.0,"triggerDetails":{"latency.getOffset.source":"1","triggerId":"1"}}],"sinkStatus":{"description":"FileSink[/Users/zsx/stream2]","offsetDesc":"[#0]"},"triggerDetails":{}},"exception":null}

@@ -1,3 +1,13 @@
+====
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved
+
+    This software is a modification of the original software Apache Spark licensed under the Apache 2.0
+    license, a copy of which is below. This software contains proprietary information of
+    Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled,
+    without express written authorization from Stratio Big Data Inc., Sucursal en España.
+====
+
 John Doe100000.0Mary SmithTodd JonesFederal Taxes.2State Taxes.05Insurance.11 Michigan Ave.ChicagoIL60600
 Mary Smith80000.0Jeremy KingFederal Taxes.2State Taxes. 05Insurance.1100 Ontario St.ChicagoIL60601
 Todd Jones70000.0Federal Taxes.15State Taxes.03Insurance. 1200 Chicago Ave.Oak ParkIL60700
