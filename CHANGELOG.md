@@ -1,8 +1,12 @@
 # Changelog
 
+## 2.1.0.4 (upcoming)
+
+* Spark Dispatcher retrieves Mesos Principal and Secret from Vault
+
 ## 2.1.0.3 (July 26, 2017)
 
-* Fix History Server env vars.
+* Fix History Server env vars
 
 
 ## 2.1.0.2 (July 25, 2017)
