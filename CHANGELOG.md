@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.4 (upcoming)
+## 2.1.0.4 (August 17, 2017)
 
 * Spark Dispatcher retrieves Mesos Principal and Secret from Vault
 
