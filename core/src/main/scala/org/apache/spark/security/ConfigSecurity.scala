@@ -18,6 +18,9 @@ package org.apache.spark.security
 
 import org.apache.spark.internal.Logging
 
+import scala.util.{Failure, Success, Try}
+
+
 object ConfigSecurity extends Logging{
 
   var vaultToken: Option[String] = None
@@ -52,38 +55,26 @@ object ConfigSecurity extends Logging{
     else Map()
   }
 
-  private def extractConfFromEnv(env: Map[String, String]): Map[String,
-    Map[String, String]] = {
-    val sparkSecurityPrefix = "spark_security_"
-    val extract: ((String, String)) => String = (keyValue: (String, String)) => {
-      val (key, _) = keyValue
-      key match {
-        case key if key.toLowerCase.contains(sparkSecurityPrefix + "hdfs") => "hdfs"
-        case _ => ""
-      }
-    }
-    env.groupBy(extract).filter(_._2.exists(_._1.toLowerCase.contains("enable")))
-      .flatMap{case (key, value) =>
-        if (key.nonEmpty) Option((key, value.map{case (propKey, propValue) =>
-          (propKey.split(sparkSecurityPrefix.toUpperCase).tail.head, propValue)
-        }))
-        else None
-      }
-  }
 
-  private def extractSecretFromEnv(env: Map[String, String]): Map[String,
+   def extractSecretFromEnv(env: Map[String, String]): Map[String,
     Map[String, String]] = {
     val sparkSecurityPrefix = "spark_security_"
 
     val extract: ((String, String)) => String = (keyValue: (String, String)) => {
       val (key, _) = keyValue
-      key match {
-        case key if key.toLowerCase.contains(sparkSecurityPrefix + "hdfs") => "hdfs"
-        case key if key.toLowerCase.contains(sparkSecurityPrefix + "kerberos") => "kerberos"
-        case key if key.toLowerCase.contains(sparkSecurityPrefix + "datastore") => "datastore"
-        case key if key.toLowerCase.contains(sparkSecurityPrefix + "kafka") => "kafka"
-        case _ => ""
 
+      val securityProp = key.toLowerCase
+
+      if (securityProp.startsWith(sparkSecurityPrefix)) {
+        val result = Try(securityProp.split("_")(2))
+         result match {
+          case Success(value) => value
+          case Failure(e) =>
+            throw new IllegalArgumentException(
+              s"Your SPARK_SECURITY property: $securityProp is malformed")
+        }
+      } else {
+        ""
       }
     }
 
