@@ -114,10 +114,6 @@ object ConfigSecurity extends Logging{
             vaultToken,
             SSLConfig.sslTypeDataStore,
             options)
-          case "kafka" => SSLConfig.prepareEnvironment(vaultHost,
-            vaultToken,
-            SSLConfig.sslTypeKafkaStore,
-            options)
           case _ => Map[String, String]()
        }
         secretOptions ++ agg

@@ -31,7 +31,6 @@ import org.apache.spark.internal.Logging
 object SSLConfig extends Logging {
 
   val sslTypeDataStore = "DATASTORE"
-  val sslTypeKafkaStore = "KAFKA"
 
   def prepareEnvironment(vaultHost: String,
                          vaultToken: String,
