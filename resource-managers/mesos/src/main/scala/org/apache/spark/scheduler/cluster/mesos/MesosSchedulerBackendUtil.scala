@@ -19,6 +19,7 @@ package org.apache.spark.scheduler.cluster.mesos
 
 import org.apache.mesos.Protos.{ContainerInfo, Image, NetworkInfo, Parameter, Volume}
 import org.apache.mesos.Protos.ContainerInfo.{DockerInfo, MesosInfo}
+import org.apache.mesos.Protos.ContainerInfo.DockerInfo.Network
 
 import org.apache.spark.{SparkConf, SparkException}
 import org.apache.spark.internal.Logging
@@ -132,6 +133,9 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
     val containerInfo = ContainerInfo.newBuilder()
       .setType(containerType)
 
+    val userNetworkName = conf
+      .getOption("spark.mesos.executor.docker.network.name")
+
     conf.getOption("spark.mesos.executor.docker.image").map { image =>
       val forcePullImage = conf
         .getOption("spark.mesos.executor.docker.forcePullImage")
@@ -149,7 +153,7 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
 
       if (containerType == ContainerInfo.Type.DOCKER) {
         containerInfo
-          .setDocker(dockerInfo(image, forcePullImage, portMaps, params))
+          .setDocker(dockerInfo(image, forcePullImage, portMaps, params, userNetworkName))
       } else {
         containerInfo.setMesos(mesosInfo(image, forcePullImage))
       }
@@ -166,6 +170,11 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
       containerInfo.addNetworkInfos(info)
     }
 
+    userNetworkName.map { name =>
+      val info = NetworkInfo.newBuilder().setName(name).build()
+      containerInfo.addNetworkInfos(info)
+    }
+
     containerInfo.build()
   }
 
@@ -173,14 +182,15 @@ private[mesos] object MesosSchedulerBackendUtil extends Logging {
       image: String,
       forcePullImage: Boolean,
       portMaps: List[ContainerInfo.DockerInfo.PortMapping],
-      params: List[Parameter]): DockerInfo = {
+      params: List[Parameter],
+      networkName: Option[String] = None): DockerInfo = {
     val dockerBuilder = ContainerInfo.DockerInfo.newBuilder()
       .setImage(image)
       .setForcePullImage(forcePullImage)
     portMaps.foreach(dockerBuilder.addPortMappings(_))
     params.foreach(dockerBuilder.addParameters(_))
-
-    dockerBuilder.build
+    if (networkName.isDefined) dockerBuilder.setNetwork(Network.USER).build()
+    else dockerBuilder.build
   }
 
   private def mesosInfo(image: String, forcePullImage: Boolean): MesosInfo = {

@@ -1,0 +1,74 @@
+#!/bin/bash
+set -e
+set -x
+
+exec 2>&1
+
+source /root/kms_utils-0.2.1.sh
+
+function export_daemon_opts() {
+    export SPARK_DAEMON_JAVA_OPTS=""
+    if [ "${DCOS_SERVICE_NAME}" != "spark" ]; then
+        export SPARK_DAEMON_JAVA_OPTS="$SPARK_DAEMON_JAVA_OPTS -Dspark.deploy.zookeeper.dir=/spark_mesos_dispatcher_${DCOS_SERVICE_NAME}"
+    fi
+}
+
+function set_log_level() {
+    sed "s,<LOG_LEVEL>,${SPARK_LOG_LEVEL}," \
+        /opt/spark/dist/conf/log4j.properties.template >/opt/spark/dist/conf/log4j.properties
+}
+
+function add_if_non_empty() {
+	if [ -n "$2" ]; then
+		echo "$1=$2" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
+	fi
+}
+
+function configure_properties() {
+
+echo '' > /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
+if [[ "$SECURED_MESOS" == "true" ]]
+then
+     #Login to get access token for Vault
+     login
+     #Get Mesos secrets from Vault
+     getPass "userland" "$DCOS_SERVICE_NAME" "mesos"
+     declare DCOS_SERVICE_NAME_NOHYPHEN=${DCOS_SERVICE_NAME//-/_}
+     declare MESOS_PRINCIPAL="${DCOS_SERVICE_NAME_NOHYPHEN^^}_MESOS_USER"
+     MESOS_PRINCIPAL=${!MESOS_PRINCIPAL}
+     declare MESOS_SECRET="${DCOS_SERVICE_NAME_NOHYPHEN^^}_MESOS_PASS"
+     MESOS_SECRET=${!MESOS_SECRET}
+
+      echo "spark.mesos.principal=${MESOS_PRINCIPAL}" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
+      echo "spark.mesos.secret=${MESOS_SECRET}" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
+      echo "spark.mesos.role=${DCOS_SERVICE_NAME}" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
+
+else
+	echo 'MESOS SECURITY IS NOT ENABLE'
+fi
+}
+
+export APPLICATION_WEB_PROXY_BASE="${DISPATCHER_UI_WEB_PROXY_BASE}"
+set_log_level
+export_daemon_opts
+configure_properties
+ZK="master.mesos:2181"
+
+if [ "${SPARK_VIRTUAL_USER_NETWORK}" != "" ]; then
+   HOST="$(hostname --all-ip-addresses|xargs)"
+   echo "Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
+   export LIBPROCESS_IP=$HOST
+fi
+
+
+
+exec /opt/spark/dist/bin/spark-class \
+    org.apache.spark.deploy.mesos.MesosClusterDispatcher \
+    --port "${DISPATCHER_PORT}" \
+    --webui-port "${DISPATCHER_UI_PORT}" \
+    --master "mesos://zk://${ZK}/mesos" \
+    --zk "${ZK}" \
+    --host "${HOST}" \
+    --name "${DCOS_SERVICE_NAME}" \
+    --properties-file "/opt/spark/dist/conf/mesos-cluster-dispatcher.properties"
+

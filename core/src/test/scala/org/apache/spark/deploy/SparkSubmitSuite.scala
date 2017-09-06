@@ -173,7 +173,7 @@ class SparkSubmitSuite
       "thejar.jar"
     )
     val appArgs = new SparkSubmitArguments(clArgs)
-    val (_, _, sysProps, _) = prepareSubmitEnvironment(appArgs)
+    val (_, _, sysProps, _, _, _) = prepareSubmitEnvironment(appArgs)
 
     appArgs.deployMode should be ("client")
     sysProps("spark.submit.deployMode") should be ("client")
@@ -187,7 +187,7 @@ class SparkSubmitSuite
       "thejar.jar"
     )
     val appArgs1 = new SparkSubmitArguments(clArgs1)
-    val (_, _, sysProps1, _) = prepareSubmitEnvironment(appArgs1)
+    val (_, _, sysProps1, _, _, _) = prepareSubmitEnvironment(appArgs1)
 
     appArgs1.deployMode should be ("cluster")
     sysProps1("spark.submit.deployMode") should be ("cluster")
@@ -201,7 +201,7 @@ class SparkSubmitSuite
     val appArgs2 = new SparkSubmitArguments(clArgs2)
     appArgs2.deployMode should be (null)
 
-    val (_, _, sysProps2, _) = prepareSubmitEnvironment(appArgs2)
+    val (_, _, sysProps2, _, _, _) = prepareSubmitEnvironment(appArgs2)
     appArgs2.deployMode should be ("client")
     sysProps2("spark.submit.deployMode") should be ("client")
   }
@@ -224,7 +224,7 @@ class SparkSubmitSuite
       "thejar.jar",
       "arg1", "arg2")
     val appArgs = new SparkSubmitArguments(clArgs)
-    val (childArgs, classpath, sysProps, mainClass) = prepareSubmitEnvironment(appArgs)
+    val (childArgs, classpath, sysProps, mainClass, _, _) = prepareSubmitEnvironment(appArgs)
     val childArgsStr = childArgs.mkString(" ")
     childArgsStr should include ("--class org.SomeClass")
     childArgsStr should include ("--arg arg1 --arg arg2")
@@ -267,7 +267,7 @@ class SparkSubmitSuite
       "thejar.jar",
       "arg1", "arg2")
     val appArgs = new SparkSubmitArguments(clArgs)
-    val (childArgs, classpath, sysProps, mainClass) = prepareSubmitEnvironment(appArgs)
+    val (childArgs, classpath, sysProps, mainClass, _, _) = prepareSubmitEnvironment(appArgs)
     childArgs.mkString(" ") should be ("arg1 arg2")
     mainClass should be ("org.SomeClass")
     classpath should have length (4)
@@ -313,7 +313,7 @@ class SparkSubmitSuite
       "arg1", "arg2")
     val appArgs = new SparkSubmitArguments(clArgs)
     appArgs.useRest = useRest
-    val (childArgs, classpath, sysProps, mainClass) = prepareSubmitEnvironment(appArgs)
+    val (childArgs, classpath, sysProps, mainClass, _, _) = prepareSubmitEnvironment(appArgs)
     val childArgsStr = childArgs.mkString(" ")
     if (useRest) {
       childArgsStr should endWith ("thejar.jar org.SomeClass arg1 arg2")
@@ -349,7 +349,7 @@ class SparkSubmitSuite
       "thejar.jar",
       "arg1", "arg2")
     val appArgs = new SparkSubmitArguments(clArgs)
-    val (childArgs, classpath, sysProps, mainClass) = prepareSubmitEnvironment(appArgs)
+    val (childArgs, classpath, sysProps, mainClass, _, _) = prepareSubmitEnvironment(appArgs)
     childArgs.mkString(" ") should be ("arg1 arg2")
     mainClass should be ("org.SomeClass")
     classpath should have length (1)
@@ -371,7 +371,7 @@ class SparkSubmitSuite
       "thejar.jar",
       "arg1", "arg2")
     val appArgs = new SparkSubmitArguments(clArgs)
-    val (childArgs, classpath, sysProps, mainClass) = prepareSubmitEnvironment(appArgs)
+    val (childArgs, classpath, sysProps, mainClass, _, _) = prepareSubmitEnvironment(appArgs)
     childArgs.mkString(" ") should be ("arg1 arg2")
     mainClass should be ("org.SomeClass")
     classpath should have length (1)
@@ -391,7 +391,7 @@ class SparkSubmitSuite
       "thejar.jar",
       "arg1", "arg2")
     val appArgs = new SparkSubmitArguments(clArgs)
-    val (_, _, sysProps, mainClass) = prepareSubmitEnvironment(appArgs)
+    val (_, _, sysProps, mainClass, _, _) = prepareSubmitEnvironment(appArgs)
     sysProps("spark.executor.memory") should be ("5g")
     sysProps("spark.master") should be ("yarn")
     sysProps("spark.submit.deployMode") should be ("cluster")

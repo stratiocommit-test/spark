@@ -23,11 +23,12 @@ import java.util.{Date, Locale}
 import java.util.concurrent.atomic.AtomicLong
 import javax.servlet.http.HttpServletResponse
 
-import org.apache.spark.{SPARK_VERSION => sparkVersion, SparkConf}
+import org.apache.spark.{SparkConf, SPARK_VERSION => sparkVersion}
 import org.apache.spark.deploy.Command
 import org.apache.spark.deploy.mesos.MesosDriverDescription
 import org.apache.spark.deploy.rest._
 import org.apache.spark.scheduler.cluster.mesos.MesosClusterScheduler
+import org.apache.spark.security.VaultHelper
 import org.apache.spark.util.Utils
 
 /**
@@ -43,6 +44,22 @@ private[spark] class MesosRestServer(
     masterConf: SparkConf,
     scheduler: MesosClusterScheduler)
   extends RestSubmissionServer(host, requestedPort, masterConf) {
+
+  protected lazy val token = {
+    require((masterConf.getOption("spark.secret.vault.protocol").isDefined
+      && masterConf.getOption("spark.secret.vault.hosts").isDefined
+      && masterConf.getOption("spark.secret.vault.port").isDefined),
+      "You are attempting to login in Vault but no Vault obtained," +
+        " please configure spark.secret.vault.protocol," +
+        " spark.vault.host and spark.secret.vault.port" +
+        " in your Stratio Spark Dispatcher instance")
+    val vaultUrl = s"${masterConf.get("spark.secret.vault.protocol")}://" +
+      s"${masterConf.get("spark.secret.vault.hosts").split(",")
+        .map(host => s"$host:${masterConf.get("spark.secret.vault.port")}").mkString(",")}"
+    VaultHelper.getTokenFromAppRole(vaultUrl,
+      sys.env("VAULT_ROLE_ID"),
+      sys.env("VAULT_SECRET_ID"))
+  }
 
   protected override val submitRequestServlet =
     new MesosSubmitRequestServlet(scheduler, masterConf)
@@ -102,6 +119,41 @@ private[mesos] class MesosSubmitRequestServlet(
     val extraJavaOpts = driverExtraJavaOptions.map(Utils.splitCommandString).getOrElse(Seq.empty)
     val sparkJavaOpts = Utils.sparkJavaOpts(conf)
     val javaOpts = sparkJavaOpts ++ extraJavaOpts
+    val securitySparkOpts: Map[String, String] = {
+        if (sparkProperties.get("spark.secret.vault.hosts").isDefined
+          && sparkProperties.get("spark.secret.vault.protocol").isDefined
+          && sparkProperties.get("spark.secret.vault.port").isDefined) {
+            val vaultUrl = s"${sparkProperties("spark.secret.vault.protocol")}://" +
+                s"${sparkProperties("spark.secret.vault.hosts").split(",")
+                    .map(host => s"$host:${sparkProperties("spark.secret.vault.port")}").mkString(",")}"
+            (sparkProperties.get("spark.secret.vault.role"),
+                sys.env.get("VAULT_ROLE"),
+                sparkProperties.get("spark.secret.vault.token"),
+                sys.env.get("VAULT_TEMP_TOKEN")) match {
+              case (roleProp, roleEnv, None, None) if (roleEnv.isDefined || roleProp.isDefined) =>
+                val role = roleProp.getOrElse(roleEnv.get)
+                logTrace(s"obtaining vault secretID and role ID using role: $role")
+                val driverSecretId = VaultHelper.getSecretIdFromVault(vaultUrl, role)
+                val driverRoleId = VaultHelper.getRoleIdFromVault(vaultUrl, role)
+                Map("spark.mesos.driverEnv.VAULT_ROLE_ID" -> driverRoleId,
+                  "spark.mesos.driverEnv.VAULT_SECRET_ID" -> driverSecretId)
+              case (None, None, tokenProp, tokenVal) if (tokenProp.isDefined
+                || tokenVal.isDefined) =>
+                  val vaultToken = tokenProp.getOrElse(tokenVal.get)
+                  val temporalToken = VaultHelper.getTemporalToken(vaultUrl, vaultToken)
+                  logDebug(s"Obtained token from One time token; $temporalToken")
+                  Map("spark.secret.vault.tempToken" -> temporalToken) ++ request.sparkProperties
+                    .filter(_._1 != "spark.secret.vault.token")
+              case _ => Map[String, String]()
+            }
+          } else
+          {
+            logDebug("Non security options provided, executing Spark without security")
+            Map[String, String]()
+          }
+        }
+    val sparkPropertiesToSend = request.sparkProperties ++ securitySparkOpts
+
     val command = new Command(
       mainClass, appArgs, environmentVariables, extraClassPath, extraLibraryPath, javaOpts)
     val actualSuperviseDriver = superviseDriver.map(_.toBoolean).getOrElse(DEFAULT_SUPERVISE)
@@ -112,7 +164,7 @@ private[mesos] class MesosSubmitRequestServlet(
 
     new MesosDriverDescription(
       name, appResource, actualDriverMemory, actualDriverCores, actualSuperviseDriver,
-      command, request.sparkProperties, submissionId, submitDate)
+      command, sparkPropertiesToSend, submissionId, submitDate)
   }
 
   protected override def handleSubmit(

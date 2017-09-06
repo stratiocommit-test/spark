@@ -23,16 +23,15 @@ import java.util.{Collections, Date, List => JList}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-
 import org.apache.mesos.{Scheduler, SchedulerDriver}
 import org.apache.mesos.Protos.{TaskState => MesosTaskState, _}
 import org.apache.mesos.Protos.Environment.Variable
 import org.apache.mesos.Protos.TaskStatus.Reason
-
 import org.apache.spark.{SecurityManager, SparkConf, SparkException, TaskState}
 import org.apache.spark.deploy.mesos.MesosDriverDescription
 import org.apache.spark.deploy.rest.{CreateSubmissionResponse, KillSubmissionResponse, SubmissionStatusResponse}
 import org.apache.spark.metrics.MetricsSystem
+import org.apache.spark.security.VaultHelper
 import org.apache.spark.util.Utils
 
 /**
@@ -386,6 +385,10 @@ private[spark] class MesosClusterScheduler(
     env.foreach { case (k, v) =>
       envBuilder.addVariables(Variable.newBuilder().setName(k).setValue(v))
     }
+    if (desc.conf.getOption("spark.mesos.driver.docker.network.name").isDefined) {
+      envBuilder.addVariables(Variable.newBuilder()
+        .setName("SPARK_VIRTUAL_USER_NETWORK").setValue("true"))
+    }
     envBuilder.build()
   }
 
@@ -406,7 +409,11 @@ private[spark] class MesosClusterScheduler(
     val dockerDefined = desc.conf.contains("spark.mesos.executor.docker.image")
     val executorUri = getDriverExecutorURI(desc)
     // Gets the path to run spark-submit, and the path to the Mesos sandbox.
-    val (executable, sandboxPath) = if (dockerDefined) {
+    val sandboxPath = if (dockerDefined) "$MESOS_SANDBOX"
+    else if (executorUri.isDefined)   ".."
+    else "."
+
+    val executable = if (executorUri.isDefined) {
       // Application jar is automatically downloaded in the mounted sandbox by Mesos,
       // and the path to the mounted volume is stored in $MESOS_SANDBOX env variable.
       ("./bin/spark-submit", "$MESOS_SANDBOX")
@@ -421,7 +428,7 @@ private[spark] class MesosClusterScheduler(
 
       val cmdExecutable = s"cd $folderBasename*; $prefixEnv bin/spark-submit"
       // Sandbox path points to the parent folder as we chdir into the folderBasename.
-      (cmdExecutable, "..")
+      cmdExecutable
     } else {
       val executorSparkHome = desc.conf.getOption("spark.mesos.executor.home")
         .orElse(conf.getOption("spark.home"))
@@ -430,8 +437,7 @@ private[spark] class MesosClusterScheduler(
           throw new SparkException("Executor Spark home `spark.mesos.executor.home` is not set!")
         }
       val cmdExecutable = new File(executorSparkHome, "./bin/spark-submit").getPath
-      // Sandbox points to the current directory by default with Mesos.
-      (cmdExecutable, ".")
+      cmdExecutable
     }
     val cmdOptions = generateCmdOption(desc, sandboxPath).mkString(" ")
     val primaryResource = new File(sandboxPath, desc.jarUrl.split("/").last).toString()
@@ -693,6 +699,22 @@ private[spark] class MesosClusterScheduler(
             .getOrElse{ (1, 1) }
           val nextRetry = new Date(new Date().getTime + waitTimeSec * 1000L)
 
+          var sparkProperties = state.driverDescription.conf.getAll.toMap
+          if (sparkProperties.get("spark.secret.vault.protocol").isDefined
+            && sparkProperties.get("spark.secret.vault.hosts").isDefined
+            && sparkProperties.get("spark.secret.vault.port").isDefined)
+          {
+            val vaultUrl = s"${sparkProperties("spark.secret.vault.protocol")}://" +
+                s"${sparkProperties("spark.secret.vault.hosts").split(",")
+                  .map(host => s"$host:${sparkProperties("spark.secret.vault.port")}")
+                  .mkString(",")}"
+            val role = sparkProperties("spark.secret.vault.role")
+            val driverSecretId = VaultHelper.getSecretIdFromVault(vaultUrl, role)
+            val driverRoleId = VaultHelper.getRoleIdFromVault(vaultUrl, role)
+            sparkProperties = sparkProperties.updated("spark.secret.roleID", driverRoleId)
+              .updated("spark.secret.secretID", driverSecretId)
+          }
+          else logDebug("No Vault information provided skipping new approle generation")
           val newDriverDescription = state.driverDescription.copy(
             retryState = Some(new MesosClusterRetryState(status, retries, nextRetry, waitTimeSec)))
           addDriverToPending(newDriverDescription, taskId);
