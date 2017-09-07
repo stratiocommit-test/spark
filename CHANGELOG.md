@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0.5 (upcoming)
+
+* Connection to Elastic with TLS
+* Connection to Postgres with TLS, unified in datastore identity
+* Removed Kafka identity, unified in datastore identity
+* Removed script connection to Postgres 
+
 ## 2.1.0.4 (August 17, 2017)
 
 * Spark Dispatcher retrieves Mesos Principal and Secret from Vault
