@@ -333,7 +333,7 @@ Note that Spark artifacts are tagged with a Scala version.
   <version>1.0</version>
   <dependencies>
     <dependency> <!-- Spark dependency -->
-      <groupId>org.apache.spark</groupId>
+      <groupId>com.stratio.spark</groupId>
       <artifactId>spark-sql_{{site.SCALA_BINARY_VERSION}}</artifactId>
       <version>{{site.SPARK_VERSION}}</version>
     </dependency>

@@ -382,7 +382,7 @@ Similar to Spark, Spark Streaming is available through Maven Central. To write y
 <div data-lang="Maven" markdown="1">
 
 	<dependency>
-        <groupId>org.apache.spark</groupId>
+        <groupId>com.stratio.spark</groupId>
         <artifactId>spark-streaming_{{site.SCALA_BINARY_VERSION}}</artifactId>
         <version>{{site.SPARK_VERSION}}</version>
     </dependency>
