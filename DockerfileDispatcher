@@ -1,4 +1,4 @@
-FROM qa.stratio.com/mesosphere/spark:1.0.7-2.2.0-hadoop-2.7
+FROM qa.stratio.com/mesosphere/spark:1.1.1-2.2.0-hadoop-2.7
 
 ARG VERSION
 
