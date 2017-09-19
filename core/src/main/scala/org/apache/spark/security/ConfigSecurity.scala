@@ -23,9 +23,8 @@ import org.apache.spark.internal.Logging
 object ConfigSecurity extends Logging{
 
   var vaultToken: Option[String] = None
-  val vaultHost: Option[String] = sys.env.get("VAULT_HOST")
   val vaultUri: Option[String] = getVaultUri(sys.env.get("VAULT_PROTOCOL"),
-    vaultHost, sys.env.get("VAULT_PORT"))
+    sys.env.get("VAULT_HOST"), sys.env.get("VAULT_PORT"))
   
     def getVaultUri(vaultProtocol: Option[String],
                     vaultHost: Option[String],

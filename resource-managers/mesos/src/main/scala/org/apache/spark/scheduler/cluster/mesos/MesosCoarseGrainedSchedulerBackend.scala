@@ -219,8 +219,8 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
           ConfigSecurity.vaultToken.get))
         .build())
       environment.addVariables(Environment.Variable.newBuilder()
-        .setName("VAULT_HOST")
-        .setValue(ConfigSecurity.vaultHost.get)
+        .setName("VAULT_URI")
+        .setValue(ConfigSecurity.vaultUri.get)
         .build())
     }
 
