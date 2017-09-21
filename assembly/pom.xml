@@ -22,7 +22,6 @@
     <groupId>com.stratio.spark</groupId>
     <artifactId>spark-parent_2.11</artifactId>
     <version>2.2.0.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>spark-assembly_2.11</artifactId>
@@ -46,33 +45,33 @@
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-core_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-core_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-mllib_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-mllib_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-streaming_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-graphx_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-graphx_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-sql_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-sql_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-repl_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-repl_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
 
     <!--
@@ -133,8 +132,8 @@
       <dependencies>
         <dependency>
           <groupId>com.stratio.spark</groupId>
-          <artifactId>spark-yarn_${scala.binary.version}</artifactId>
-          <version>${project.version}</version>
+          <artifactId>spark-yarn_2.11</artifactId>
+          <version>2.2.0.0-SNAPSHOT</version>
         </dependency>
       </dependencies>
     </profile>
@@ -148,8 +147,8 @@
       <dependencies>
         <dependency>
           <groupId>com.stratio.spark</groupId>
-          <artifactId>spark-mesos_${scala.binary.version}</artifactId>
-          <version>${project.version}</version>
+          <artifactId>spark-mesos_2.11</artifactId>
+          <version>2.2.0.0-SNAPSHOT</version>
         </dependency>
       </dependencies>
     </profile>
@@ -158,8 +157,8 @@
       <dependencies>
         <dependency>
           <groupId>com.stratio.spark</groupId>
-          <artifactId>spark-hive_${scala.binary.version}</artifactId>
-          <version>${project.version}</version>
+          <artifactId>spark-hive_2.11</artifactId>
+          <version>2.2.0.0-SNAPSHOT</version>
         </dependency>
       </dependencies>
     </profile>
@@ -168,8 +167,8 @@
       <dependencies>
         <dependency>
           <groupId>com.stratio.spark</groupId>
-          <artifactId>spark-hive-thriftserver_${scala.binary.version}</artifactId>
-          <version>${project.version}</version>
+          <artifactId>spark-hive-thriftserver_2.11</artifactId>
+          <version>2.2.0.0-SNAPSHOT</version>
         </dependency>
       </dependencies>
     </profile>
@@ -178,8 +177,8 @@
       <dependencies>
         <dependency>
           <groupId>com.stratio.spark</groupId>
-          <artifactId>spark-ganglia-lgpl_${scala.binary.version}</artifactId>
-          <version>${project.version}</version>
+          <artifactId>spark-ganglia-lgpl_2.11</artifactId>
+          <version>2.2.0.0-SNAPSHOT</version>
         </dependency>
       </dependencies>
     </profile>

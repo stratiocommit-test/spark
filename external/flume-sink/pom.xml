@@ -22,7 +22,7 @@
     <groupId>com.stratio.spark</groupId>
     <artifactId>spark-parent_2.11</artifactId>
     <version>2.2.0.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+
   </parent>
 
   <artifactId>spark-streaming-flume-sink_2.11</artifactId>
@@ -91,7 +91,7 @@
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-tags_${scala.binary.version}</artifactId>
+      <artifactId>spark-tags_2.11</artifactId>
     </dependency>
 
     <!--
@@ -100,15 +100,15 @@
     -->
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-tags_${scala.binary.version}</artifactId>
+      <artifactId>spark-tags_2.11</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
 
   </dependencies>
   <build>
-    <outputDirectory>target/scala-${scala.binary.version}/classes</outputDirectory>
-    <testOutputDirectory>target/scala-${scala.binary.version}/test-classes</testOutputDirectory>
+    <outputDirectory>target/scala-2.11/classes</outputDirectory>
+    <testOutputDirectory>target/scala-2.11/test-classes</testOutputDirectory>
     <plugins>
       <plugin>
         <groupId>org.apache.avro</groupId>
@@ -116,7 +116,7 @@
         <version>${avro.version}</version>
         <configuration>
           <!-- Generate the output in the same directory as the sbt-avro-plugin -->
-          <outputDirectory>${project.basedir}/target/scala-${scala.binary.version}/src_managed/main/compiled_avro</outputDirectory>
+          <outputDirectory>${project.basedir}/target/scala-2.11/src_managed/main/compiled_avro</outputDirectory>
         </configuration>
         <executions>
           <execution>

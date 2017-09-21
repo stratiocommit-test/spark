@@ -23,7 +23,7 @@
     <groupId>com.stratio.spark</groupId>
     <artifactId>spark-parent_2.11</artifactId>
     <version>2.2.0.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+
   </parent>
 
   <artifactId>spark-catalyst_2.11</artifactId>
@@ -42,19 +42,19 @@
 
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-core_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-core_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
      <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-core_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-core_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-tags_${scala.binary.version}</artifactId>
+      <artifactId>spark-tags_2.11</artifactId>
     </dependency>
 
     <!--
@@ -63,24 +63,24 @@
     -->
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-tags_${scala.binary.version}</artifactId>
+      <artifactId>spark-tags_2.11</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-unsafe_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-unsafe_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.stratio.spark</groupId>
-      <artifactId>spark-sketch_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
+      <artifactId>spark-sketch_2.11</artifactId>
+      <version>2.2.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.scalacheck</groupId>
-      <artifactId>scalacheck_${scala.binary.version}</artifactId>
+      <artifactId>scalacheck_2.11</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -101,8 +101,8 @@
     </dependency>
   </dependencies>
   <build>
-    <outputDirectory>target/scala-${scala.binary.version}/classes</outputDirectory>
-    <testOutputDirectory>target/scala-${scala.binary.version}/test-classes</testOutputDirectory>
+    <outputDirectory>target/scala-2.11/classes</outputDirectory>
+    <testOutputDirectory>target/scala-2.11/test-classes</testOutputDirectory>
     <plugins>
       <!--
            This plugin forces the generation of jar containing catalyst test classes,
