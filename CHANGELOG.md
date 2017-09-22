@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0.0 (upcoming)
+
+* Pending changelog
+
 ## 2.2.0.0 (upcoming)
 
 * Connection to Elastic with TLS
