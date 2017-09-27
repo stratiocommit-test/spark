@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0.0 (upcoming)
+## 2.2.0.0 (September 27, 2017)
 
 * Connection to Elastic with TLS
 * Connection to Postgres with TLS, unified in datastore identity

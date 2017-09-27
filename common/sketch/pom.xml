@@ -22,12 +22,12 @@
   <parent>
     <groupId>com.stratio.spark</groupId>
     <artifactId>spark-parent_2.11</artifactId>
-    <version>2.2.0.0-RC2-SNAPSHOT</version>
+    <version>2.2.0.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
   <artifactId>spark-sketch_2.11</artifactId>
-  <version>2.2.0.0-RC2-SNAPSHOT</version>
+  <version>2.2.0.0</version>
   <packaging>jar</packaging>
   <name>Spark Project Sketch</name>
   <url>http://spark.apache.org/</url>
