@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0.1 (upcoming)
+
+* Removed Mesos secret and principal from curls
+* Added configurable HDFS timeout
+
 ## 2.2.0.0 (September 27, 2017)
 
 * Connection to Elastic with TLS
