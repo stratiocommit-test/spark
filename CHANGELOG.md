@@ -6,6 +6,8 @@
 * Connection to Postgres with TLS, unified in datastore identity
 * Removed Kafka identity, unified in datastore identity
 * Removed script connection to Postgres 
+* Removed Mesos secret and principal from curls
+* Added configurable HDFS timeout
 
 ## 2.1.0.4 (August 17, 2017)
 
