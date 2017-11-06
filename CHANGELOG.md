@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0.1 (upcoming)
+## 2.2.0.1 (November 06, 2017)
 
 * Removed Mesos secret and principal from curls
 * Added configurable HDFS timeout
