@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0.6 (Upcoming)
+
+* Added mesos constraints management to spark driver
+* Added a secure way to retrieve user and passwords information from vault
+
 ## 2.1.0.5 (November 07, 2017)
 
 * Connection to Elastic with TLS
