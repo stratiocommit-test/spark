@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0.2 (Upcoming)
+
+* Added mesos constraints management to spark driver
+* Added a secure way to retrieve user and passwords information from vault
+
 ## 2.2.0.1 (November 06, 2017)
 
 * Removed Mesos secret and principal from curls
