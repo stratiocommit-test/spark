@@ -2,6 +2,7 @@
 
 ## 2.1.0.6 (Upcoming)
 
+* Added validation to curl parameters
 * Added mesos constraints management to spark driver
 * Added a secure way to retrieve user and passwords information from vault
 
