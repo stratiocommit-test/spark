@@ -32,8 +32,8 @@ then
      #Login to get access token for Vault
      login
      #Get Mesos secrets from Vault
-     getPass "userland" "$DCOS_SERVICE_NAME" "mesos"
-     declare DCOS_SERVICE_NAME_NOHYPHEN=${DCOS_SERVICE_NAME//-/_}
+     getPass "userland" "$TENANT_NAME" "mesos"
+     declare DCOS_SERVICE_NAME_NOHYPHEN=${TENANT_NAME//-/_}
      declare MESOS_PRINCIPAL="${DCOS_SERVICE_NAME_NOHYPHEN^^}_MESOS_USER"
      MESOS_PRINCIPAL=${!MESOS_PRINCIPAL}
      declare MESOS_SECRET="${DCOS_SERVICE_NAME_NOHYPHEN^^}_MESOS_PASS"
@@ -41,7 +41,7 @@ then
 
       echo "spark.mesos.principal=${MESOS_PRINCIPAL}" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
       echo "spark.mesos.secret=${MESOS_SECRET}" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
-      echo "spark.mesos.role=${DCOS_SERVICE_NAME}" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
+      echo "spark.mesos.role=${TENANT_NAME}" >> /opt/spark/dist/conf/mesos-cluster-dispatcher.properties
 
 else
 	echo 'MESOS SECURITY IS NOT ENABLE'

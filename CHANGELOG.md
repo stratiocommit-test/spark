@@ -5,6 +5,7 @@
 * Added validation to curl parameters
 * Added mesos constraints management to spark driver
 * Added a secure way to retrieve user and passwords information from vault
+* Added Tenant Name variable being able to have Spark Dispatcher with different name
 
 ## 2.1.0.5 (November 07, 2017)
 
