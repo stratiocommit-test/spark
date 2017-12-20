@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.6 (Upcoming)
+## 2.1.0.6 (upcoming)
 
 * Added validation to curl parameters
 * Added mesos constraints management to spark driver
