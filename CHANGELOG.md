@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0.2 (Upcoming)
+## 2.2.0.2 (December 26, 2017)
 
 * Added mesos constraints management to spark driver
 * Added a secure way to retrieve user and passwords information from vault
