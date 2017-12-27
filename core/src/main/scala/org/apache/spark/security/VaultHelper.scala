@@ -18,6 +18,8 @@ package org.apache.spark.security
 
 import org.apache.spark.internal.Logging
 
+import scala.util.Try
+
 object VaultHelper extends Logging {
 
 
@@ -126,5 +128,14 @@ object VaultHelper extends Logging {
     HTTPHelper.executePost(requestUrl,
       "data", Some(Seq(("X-Vault-Token", vaultTempToken.get)))
     )("token").asInstanceOf[String]
+  }
+
+  def retrieveSecret(secretVaultPath: String, idJSonSecret: String): String = {
+    logDebug(s"Retriving Secret: $secretVaultPath")
+    val requestUrl = s"${ConfigSecurity.vaultURI.get}/$secretVaultPath"
+
+    HTTPHelper.executeGet(requestUrl,
+      "data", Some(Seq(("X-Vault-Token",
+      ConfigSecurity.vaultToken.get))))(idJSonSecret).asInstanceOf[String]
   }
 }

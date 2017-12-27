@@ -3,6 +3,7 @@
 ## 2.2.0.3 (upcoming)
 
 * Unify Vault variables
+* Secret Broadcast variables (Experimental)
 
 ## 2.2.0.2 (December 26, 2017)
 
