@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0.3 (upcoming)
+## 2.2.0.3 (December 27, 2017)
 
 * Unify Vault variables
 * Secret Broadcast variables (Experimental)
