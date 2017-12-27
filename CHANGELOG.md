@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0.3 (upcoming)
+
+* Unify Vault variables
+
 ## 2.2.0.2 (December 26, 2017)
 
 * Added mesos constraints management to spark driver

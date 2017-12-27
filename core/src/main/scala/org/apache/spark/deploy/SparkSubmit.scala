@@ -709,18 +709,9 @@ object SparkSubmit extends CommandLineUtils {
       case _ => None
     }
 
-    val vaultProtocol = args.sparkProperties.get("spark.secret.vault.protocol")
-    val vaultHost = args.sparkProperties.get("spark.secret.vault.hosts")
-    val vaultPort = args.sparkProperties.get("spark.secret.vault.port")
-
-    val vaultUrlParams = (vaultProtocol, vaultHost, vaultPort)
-    val vaultUrl = buildVaultUrl(vaultUrlParams)
-    lazy val vaultToken = getToken(tempToken, roleSecret, vaultUrl)
-
     val (principal, keytab) =
-      if (vaultUrl.nonEmpty && vaultToken.isDefined) {
-        val environment = ConfigSecurity.prepareEnvironment(
-          Option (vaultToken.get), Option(vaultUrl))
+      if (ConfigSecurity.vaultURI.isDefined) {
+        val environment = ConfigSecurity.prepareEnvironment
         val principal = environment.getOrElse("principal", args.principal)
         val keytab = environment.getOrElse("keytabPath", args.keytab)
 
@@ -734,45 +725,6 @@ object SparkSubmit extends CommandLineUtils {
       }
 
     (childArgs, childClasspath, sysProps, childMainClass, principal, keytab)
-  }
-
-  /**
-    *
-    * @param tempToken Temporal token, either Property one or Environment one
-    * @param roleSecret Role and Secret ID, either Property one or Environment one
-    * @param vaultUrl a Vault Url protocol://vaultHost:vaultPort
-    * @return An option of a token
-    */
-  private def getToken(tempToken: Option[String],
-                       roleSecret: Option[(String, String)],
-                       vaultUrl: String): Option[String] = {
-
-    (tempToken, roleSecret) match {
-      case (Some(tempToken), _) => Some(VaultHelper.getRealToken(vaultUrl, tempToken))
-      case (_, Some((role, secret))) =>
-        Some(VaultHelper.getTokenFromAppRole(vaultUrl, role, secret))
-      case _ => None
-    }
-  }
-
-  /**
-    *
-    * @param vaultUrlParams Is composed of Vault Protocol,
-    *                       Vault Host and Vault Port
-    * @return a Vault Url protocol://vaultHost:vaultPort
-    */
-  private def buildVaultUrl(vaultUrlParams: (Option[String],
-                                             Option[String],
-                                             Option[String])): String = {
-
-    val vaultUrl = vaultUrlParams match {
-      case (Some(protocol), Some(hosts), Some(port)) =>
-        s"${protocol}://${
-          hosts.split(",")
-            .map(host => s"$host:${port}").mkString(",")}"
-      case _ => ""
-    }
-    vaultUrl
   }
 
   /**

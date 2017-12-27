@@ -34,18 +34,15 @@ object SSLConfig extends Logging {
 
   val sslTypeDataStore = "DATASTORE"
 
-  def prepareEnvironment(vaultHost: String,
-                         vaultToken: String,
-                         sslType: String,
+  def prepareEnvironment(sslType: String,
                          options: Map[String, String]): Map[String, String] = {
 
     val sparkSSLPrefix = "spark.ssl."
 
     val vaultTrustStorePath = options.get(s"${sslType}_VAULT_TRUSTSTORE_PATH")
     val vaultTrustStorePassPath = options.get(s"${sslType}_VAULT_TRUSTSTORE_PASS_PATH")
-    val trustStore = VaultHelper.getTrustStore(vaultHost, vaultToken, vaultTrustStorePath.get)
-    val trustPass = VaultHelper.getCertPassForAppFromVault(
-      vaultHost, vaultTrustStorePassPath.get, vaultToken)
+    val trustStore = VaultHelper.getTrustStore(vaultTrustStorePath.get)
+    val trustPass = VaultHelper.getCertPassForAppFromVault(vaultTrustStorePassPath.get)
     val trustStorePath = generateTrustStore(sslType, trustStore, trustPass)
 
     logInfo(s"Setting SSL values for $sslType")
@@ -63,14 +60,13 @@ object SSLConfig extends Logging {
     val keyStoreOptions = if (vaultKeystorePath.isDefined && vaultKeystorePassPath.isDefined) {
 
       val (key, certs) =
-        VaultHelper.getCertKeyForAppFromVault(vaultHost, vaultKeystorePath.get, vaultToken)
+        VaultHelper.getCertKeyForAppFromVault(vaultKeystorePath.get)
       
       pemToDer(key)
       generatePemFile(certs, "cert.crt")
       generatePemFile(trustStore, "ca.crt")
 
-      val pass = VaultHelper.getCertPassForAppFromVault(
-        vaultHost, vaultKeystorePassPath.get, vaultToken)
+      val pass = VaultHelper.getCertPassForAppFromVault( vaultKeystorePassPath.get)
 
       val keyStorePath = generateKeyStore(sslType, certs, key, pass)
 
@@ -89,7 +85,7 @@ object SSLConfig extends Logging {
     val vaultKeyPassPath = options.get(s"${sslType}_VAULT_KEY_PASS_PATH")
 
     val keyPass = Map(s"$sparkSSLPrefix${sslType.toLowerCase}.keyPassword"
-      -> VaultHelper.getCertPassForAppFromVault(vaultHost, vaultKeyPassPath.get, vaultToken))
+      -> VaultHelper.getCertPassForAppFromVault(vaultKeyPassPath.get))
 
     val certFilesPath =
       Map(s"$sparkSSLPrefix${sslType.toLowerCase}.certPem.path" -> "/tmp/cert.crt",

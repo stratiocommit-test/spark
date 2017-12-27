@@ -212,15 +212,22 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
         .build())
     }
 
-    if (ConfigSecurity.vaultToken.isDefined) {
+    if (ConfigSecurity.vaultToken.isDefined && ConfigSecurity.vaultURI.isDefined) {
       environment.addVariables(Environment.Variable.newBuilder()
         .setName("VAULT_TEMP_TOKEN")
-        .setValue(VaultHelper.getTemporalToken(ConfigSecurity.vaultUri.get,
-          ConfigSecurity.vaultToken.get))
+        .setValue(VaultHelper.getTemporalToken)
         .build())
       environment.addVariables(Environment.Variable.newBuilder()
-        .setName("VAULT_URI")
-        .setValue(ConfigSecurity.vaultUri.get)
+        .setName("VAULT_PROTOCOL")
+        .setValue(sys.env.get("VAULT_PROTOCOL").get)
+        .build())
+      environment.addVariables(Environment.Variable.newBuilder()
+        .setName("VAULT_HOSTS")
+        .setValue(sys.env.get("VAULT_HOSTS").get)
+        .build())
+      environment.addVariables(Environment.Variable.newBuilder()
+        .setName("VAULT_PORT")
+        .setValue(sys.env.get("VAULT_PORT").get)
         .build())
     }
 

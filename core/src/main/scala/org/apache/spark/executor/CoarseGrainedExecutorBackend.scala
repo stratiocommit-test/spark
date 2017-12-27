@@ -286,8 +286,7 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
       appId == null) {
       printUsageAndExit()
     }
-    ConfigSecurity.prepareEnvironment(scala.util.Try{
-      VaultHelper.getRealToken(sys.env("VAULT_URI"), sys.env("VAULT_TEMP_TOKEN"))}.toOption)
+    ConfigSecurity.prepareEnvironment
 
     run(driverUrl, executorId, hostname, cores, appId, workerUrl, userClassPath)
     System.exit(0)

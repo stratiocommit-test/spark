@@ -24,13 +24,11 @@ import org.apache.spark.internal.Logging
 
 object KerberosConfig extends Logging{
 
-  def prepareEnviroment(vaultUrl: String,
-                        vaultToken: String,
-                        options: Map[String, String]): Map[String, String] = {
+  def prepareEnviroment(options: Map[String, String]): Map[String, String] = {
     val kerberosVaultPath = options.get("KERBEROS_VAULT_PATH")
     if(kerberosVaultPath.isDefined) {
       val (keytab64, principal) =
-        VaultHelper.getKeytabPrincipalFromVault(vaultUrl, vaultToken, kerberosVaultPath.get)
+        VaultHelper.getKeytabPrincipalFromVault(kerberosVaultPath.get)
       val keytabPath = getKeytabPrincipal(keytab64, principal)
       Map("principal" -> principal, "keytabPath" -> keytabPath)
     } else {

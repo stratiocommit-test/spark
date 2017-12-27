@@ -268,7 +268,7 @@ object HistoryServer extends Logging {
 
   def main(argStrings: Array[String]): Unit = {
     Utils.initDaemon(log)
-    ConfigSecurity.prepareEnvironment()
+    ConfigSecurity.prepareEnvironment
     new HistoryServerArguments(conf, argStrings)
     initSecurity()
     val securityManager = createSecurityManager(conf)

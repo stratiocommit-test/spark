@@ -31,7 +31,7 @@ import org.apache.spark.{SecurityManager, SparkConf, SparkException, TaskState}
 import org.apache.spark.deploy.mesos.{MesosDriverDescription, config}
 import org.apache.spark.deploy.rest.{CreateSubmissionResponse, KillSubmissionResponse, SubmissionStatusResponse}
 import org.apache.spark.metrics.MetricsSystem
-import org.apache.spark.security.VaultHelper
+import org.apache.spark.security.{ConfigSecurity, VaultHelper}
 import org.apache.spark.util.Utils
 
 /**
@@ -706,17 +706,12 @@ private[spark] class MesosClusterScheduler(
           val nextRetry = new Date(new Date().getTime + waitTimeSec * 1000L)
 
           var sparkProperties = state.driverDescription.conf.getAll.toMap
-          if (sparkProperties.get("spark.secret.vault.protocol").isDefined
-            && sparkProperties.get("spark.secret.vault.hosts").isDefined
-            && sparkProperties.get("spark.secret.vault.port").isDefined)
+          if (ConfigSecurity.vaultURI.isDefined)
           {
-            val vaultUrl = s"${sparkProperties("spark.secret.vault.protocol")}://" +
-                s"${sparkProperties("spark.secret.vault.hosts").split(",")
-                  .map(host => s"$host:${sparkProperties("spark.secret.vault.port")}")
-                  .mkString(",")}"
+            val vaultURI = ConfigSecurity.vaultURI.get
             val role = sparkProperties("spark.secret.vault.role")
-            val driverSecretId = VaultHelper.getSecretIdFromVault(vaultUrl, role)
-            val driverRoleId = VaultHelper.getRoleIdFromVault(vaultUrl, role)
+            val driverSecretId = VaultHelper.getSecretIdFromVault(role)
+            val driverRoleId = VaultHelper.getRoleIdFromVault(role)
             sparkProperties = sparkProperties.updated("spark.secret.roleID", driverRoleId)
               .updated("spark.secret.secretID", driverSecretId)
           }

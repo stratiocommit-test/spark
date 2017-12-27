@@ -79,23 +79,10 @@ trait MesosSchedulerUtils extends Logging {
     fwInfoBuilder.setHostname(Option(conf.getenv("SPARK_PUBLIC_DNS")).getOrElse(
       conf.get(DRIVER_HOST_ADDRESS)))
 
-    val vaultUri = ConfigSecurity.vaultUri
-
-    if(vaultUri.isDefined && conf.getOption("spark.mesos.role").isDefined) {
-
-      val token =
-        if (sys.env.get("VAULT_TOKEN").isDefined) {
-          logDebug("VAULT_TOKEN provided as environment variable")
-          sys.env.get("VAULT_TOKEN").get
-        } else {
-          logDebug("VAULT_TOKEN obtained from VAULT_ROLE_ID and VAULT_SECRET_ID")
-          VaultHelper.getTokenFromAppRole(vaultUri.get,
-            sys.env.get("VAULT_ROLE_ID").get, sys.env.get("VAULT_SECRET_ID").get)
-        }
+    if(ConfigSecurity.vaultURI.isDefined && conf.getOption("spark.mesos.role").isDefined) {
 
       val(mSecret, mPrincipal) =
-        VaultHelper.getMesosPrincipalAndSecret(vaultUri.get,
-          token, conf.getOption("spark.mesos.role").get)
+        VaultHelper.getMesosPrincipalAndSecret(conf.getOption("spark.mesos.role").get)
 
       conf.set("spark.mesos.principal", mPrincipal)
       fwInfoBuilder.setPrincipal(mPrincipal)

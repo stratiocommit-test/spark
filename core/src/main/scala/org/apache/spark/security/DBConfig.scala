@@ -17,11 +17,9 @@
 package org.apache.spark.security
 
 object DBConfig {
-  def prepareEnvironment(vaultHost: String,
-                         vaultToken: String,
-                         options: Map[String, String]): Map[String, String] = {
+  def prepareEnvironment(options: Map[String, String]): Map[String, String] = {
     options.filter(_._1.endsWith("DB_USER_VAULT_PATH")).flatMap{case (_, path) =>
-      val (pass, user) = VaultHelper.getPassPrincipalFromVault(vaultHost, path, vaultToken)
+      val (pass, user) = VaultHelper.getPassPrincipalFromVault(path)
       Seq(("spark.db.enable", "true"), ("spark.db.user", user), ("spark.db.pass", pass))
     }
   }
