@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0.4 (upcoming)
+
+* Added Tenant Name variable being able to have Spark Dispatcher with different name
+
 ## 2.2.0.3 (December 27, 2017)
 
 * Unify Vault variables
