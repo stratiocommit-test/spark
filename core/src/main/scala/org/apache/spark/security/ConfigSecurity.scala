@@ -16,7 +16,9 @@
  */
 package org.apache.spark.security
 
+
 import scala.util.{Failure, Success, Try}
+
 
 import org.apache.spark.internal.Logging
 
@@ -25,15 +27,21 @@ object ConfigSecurity extends Logging {
   lazy val vaultToken: Option[String] =
 
     if (sys.env.get("VAULT_TOKEN").isDefined) {
-      logDebug("Obtaining vault token using VAULT_TOKEN")
+      logInfo("Obtaining vault token using VAULT_TOKEN")
       sys.env.get("VAULT_TOKEN")
     } else if (sys.env.get("VAULT_TEMP_TOKEN").isDefined) {
-      logDebug("Obtaining vault token using VAULT_TEMP_TOKEN")
+      logInfo("Obtaining vault token using VAULT_TEMP_TOKEN")
       scala.util.Try {
         VaultHelper.getRealToken(sys.env.get("VAULT_TEMP_TOKEN"))
-      }.toOption
+      } match {
+        case Success(token) => Option(token)
+        case Failure(e) =>
+          logWarning("An error ocurred while trying to obtain" +
+            " Application Token from a temporal token", e)
+          None
+      }
     } else if (sys.env.get("VAULT_ROLE_ID").isDefined && sys.env.get("VAULT_SECRET_ID").isDefined) {
-     logDebug("Obtaining vault token using ROLE_ID and SECRET_ID")
+     logInfo("Obtaining vault token using ROLE_ID and SECRET_ID")
       Option(VaultHelper.getTokenFromAppRole(
         sys.env("VAULT_ROLE_ID"),
         sys.env("VAULT_SECRET_ID")))
