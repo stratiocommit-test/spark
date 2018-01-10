@@ -13,6 +13,14 @@ if [ "${SPARK_VIRTUAL_USER_NETWORK}" = "true" ]; then
    export LIBPROCESS_IP=$HOST
 fi
 
+
+function set_log_level() {
+    sed "s,log4j.rootCategory=INFO,log4j.rootCategory=${SPARK_LOG_LEVEL}," \
+        /opt/spark/dist/conf/log4j.properties.template >/opt/spark/dist/conf/log4j.properties
+}
+
+set_log_level
+
 # I first set this to MESOS_SANDBOX, as a Workaround for MESOS-5866
 # But this fails now due to MESOS-6391, so I'm setting it to /tmp
 MESOS_DIRECTORY=/tmp
