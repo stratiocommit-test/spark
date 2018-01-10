@@ -9,7 +9,7 @@ MESOS_NATIVE_JAVA_LIBRARY=/usr/lib/libmesos.so
 
 if [ "${SPARK_VIRTUAL_USER_NETWORK}" = "true" ]; then
    HOST="$(hostname --all-ip-addresses|xargs)"
-   echo "Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
+   echo "Virtual network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
    export LIBPROCESS_IP=$HOST
 fi
 
