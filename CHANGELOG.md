@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0.4 (upcoming)
+## 2.2.0.4 (January 11, 2018)
 
 * Added Tenant Name variable being able to have Spark Dispatcher with different name
 * Enable Debug mode
