@@ -14,8 +14,12 @@ function export_daemon_opts() {
 }
 
 function set_log_level() {
-    sed "s,log4j.rootCategory=INFO,log4j.rootCategory=${SPARK_LOG_LEVEL}," \
-        /opt/spark/dist/conf/log4j.properties.template >/opt/spark/dist/conf/log4j.properties
+    if [ ! -z "$SPARK_LOG_LEVEL" ]; then
+        sed "s,log4j.rootCategory=INFO,log4j.rootCategory=${SPARK_LOG_LEVEL}," \
+            /opt/spark/dist/conf/log4j.properties.template >/opt/spark/dist/conf/log4j.properties
+    else
+        echo "No SPARK_LOG_LEVEL provided. Leaving as default"
+    fi
 }
 
 function add_if_non_empty() {
