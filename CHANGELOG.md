@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0.7 (upcoming)
+
+* Supervise mode fixed
+
 ## 2.1.0.6 (December 21, 2017)
 
 * Added validation to curl parameters

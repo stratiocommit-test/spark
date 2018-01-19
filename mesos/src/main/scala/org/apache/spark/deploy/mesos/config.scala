@@ -49,6 +49,13 @@ package object config {
       .stringConf
       .createOptional
 
+  private[spark] val DRIVER_FAILOVER_TIMEOUT =
+    ConfigBuilder("spark.mesos.driver.failoverTimeout")
+      .doc("Amount of time in seconds that the master will wait to hear from the driver, " +
+        "during a temporary disconnection, before tearing down all the executors.")
+      .doubleConf
+      .createWithDefault(0.0)
+
   private[spark] val HISTORY_SERVER_URL =
     ConfigBuilder("spark.mesos.dispatcher.historyServer.url")
       .doc("Set the URL of the history server. The dispatcher will then " +
