@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0.5 (upcoming)
+
+* Separate stderr and stdout in dispatcher
+
 ## 2.2.0.4 (January 11, 2018)
 
 * Added Tenant Name variable being able to have Spark Dispatcher with different name
