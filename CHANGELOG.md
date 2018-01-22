@@ -3,6 +3,7 @@
 ## 2.2.0.5 (upcoming)
 
 * Separate stderr and stdout in dispatcher
+* Fix history server stderr/stdout. Now is possible to set log level through SPARK_LOG_LEVEL
 
 ## 2.2.0.4 (January 11, 2018)
 

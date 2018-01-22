@@ -29,9 +29,9 @@ EOM
 function set_log_level() {
     if [ ! -z "$SPARK_LOG_LEVEL" ]; then
         sed "s,log4j.rootCategory=INFO,log4j.rootCategory=${SPARK_LOG_LEVEL}," \
-            /opt/spark/dist/conf/log4j.properties.template >/opt/spark/dist/conf/log4j.properties
+            /opt/sds/spark/conf/log4j.properties.template > /opt/sds/spark/conf/log4j.properties
     else
-        echo "No SPARK_LOG_LEVEL provided. Leaving as default"
+        cp /opt/sds/spark/conf/log4j.properties.template /opt/sds/spark/conf/log4j.properties
     fi
 }
 
