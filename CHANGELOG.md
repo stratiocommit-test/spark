@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0.7 (upcoming)
+## 2.1.0.7 (January 22, 2018)
 
 * Supervise mode fixed
 
