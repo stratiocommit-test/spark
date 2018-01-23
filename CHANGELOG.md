@@ -2,6 +2,7 @@
 
 ## 2.2.0.5 (upcoming)
 
+* Fixed Supervise mode
 * Separate stderr and stdout in dispatcher
 * Fix history server stderr/stdout. Now is possible to set log level through SPARK_LOG_LEVEL
 
