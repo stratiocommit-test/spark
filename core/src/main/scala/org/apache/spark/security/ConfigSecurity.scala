@@ -16,13 +16,17 @@
  */
 package org.apache.spark.security
 
-
 import scala.util.{Failure, Success, Try}
 
-
 import org.apache.spark.internal.Logging
+import org.apache.spark.util.Utils
+
+
 
 object ConfigSecurity extends Logging {
+
+  val secretsFolder = Utils.createTempDir(
+    s"${sys.env.getOrElse("SPARK_SECRETS_FOLDER", "/tmp")}", "spark").getAbsolutePath
 
   lazy val vaultToken: Option[String] =
 
