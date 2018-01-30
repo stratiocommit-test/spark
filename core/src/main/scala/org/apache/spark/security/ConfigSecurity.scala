@@ -25,8 +25,16 @@ import org.apache.spark.util.Utils
 
 object ConfigSecurity extends Logging {
 
-  val secretsFolder = Utils.createTempDir(
-    s"${sys.env.getOrElse("SPARK_SECRETS_FOLDER", "/tmp")}", "spark").getAbsolutePath
+
+  val secretsFolder: String = sys.env.get("SPARK_DRIVER_SECRET_FOLDER") match {
+    case Some(folder) =>
+      logDebug(s"Creating secret folder using driver information in path $folder")
+      Utils.createDirectoryByName(folder).getAbsolutePath
+    case None =>
+      logDebug(s"Creating secret folder for executor")
+      Utils.createTempDir(
+       s"${sys.env.getOrElse("SPARK_SECRETS_FOLDER", "/tmp")}", "spark").getAbsolutePath
+  }
 
   lazy val vaultToken: Option[String] =
 

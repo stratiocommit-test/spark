@@ -244,7 +244,13 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
         .setName("VAULT_PORT")
         .setValue(sys.env.get("VAULT_PORT").get)
         .build())
+      environment.addVariables(Environment.Variable.newBuilder()
+        .setName("SPARK_DRIVER_SECRET_FOLDER")
+        .setValue(ConfigSecurity.secretsFolder)
+        .build())
     }
+
+
 
     val command = CommandInfo.newBuilder()
       .setEnvironment(environment)
