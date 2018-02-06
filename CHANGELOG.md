@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0.6 (upcoming)
+
+* Fix security validation check
+
 ## 2.2.0.5 (upcoming)
 
 * Fixed Supervise mode

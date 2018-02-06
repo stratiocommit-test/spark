@@ -109,7 +109,9 @@ object ConfigSecurity extends Logging {
       }
     }
 
-    env.groupBy(extract).filter(_._2.exists(_._1.toLowerCase.contains("enable")))
+    env.groupBy(extract).filter(_._2.exists {
+      case (key, value) => key.toLowerCase.contains("enable") && value.equals("true")
+    })
       .flatMap{case (key, value) =>
         if (key.nonEmpty) Option((key, value.map{case (propKey, propValue) =>
           (propKey.split(sparkSecurityPrefix.toUpperCase).tail.head, propValue)
