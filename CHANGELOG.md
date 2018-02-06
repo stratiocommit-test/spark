@@ -3,6 +3,7 @@
 ## 2.2.0.6 (upcoming)
 
 * Fix security validation check
+* Vault connection certificates are obtained dynamically
 
 ## 2.2.0.5 (upcoming)
 
