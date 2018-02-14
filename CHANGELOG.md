@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0.5 (upcoming)
+## 2.2.0.5 (February 14, 2018)
 
 * Fixed Supervise mode
 * Separate stderr and stdout in dispatcher
