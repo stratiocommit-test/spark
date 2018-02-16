@@ -2,6 +2,18 @@
 
 <suite name="Full TestsAT in Nightlies" thread-count="1" preserve-order="true">
 
+    <test name="init" preserve-order="true">
+        <groups>
+            <run>
+                <include name="DownloadImages"/>
+            </run>
+        </groups>
+
+        <packages>
+            <package name="com.stratio.*" />
+        </packages>
+    </test>
+
     <test name="installation" preserve-order="true">
         <groups>
             <run>
