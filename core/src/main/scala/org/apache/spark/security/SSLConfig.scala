@@ -54,12 +54,17 @@ object SSLConfig extends Logging {
     val vaultKeystorePath = options.get(s"${sslType}_VAULT_CERT_PATH")
 
     val vaultKeystorePassPath = options.get(s"${sslType}_VAULT_CERT_PASS_PATH")
+    val certName = options.get(s"${sslType}_CERTIFICATE_NAME")
 
-    val keyStoreOptions = if (vaultKeystorePath.isDefined && vaultKeystorePassPath.isDefined) {
-
-      val (key, certs) =
-        VaultHelper.getCertKeyForAppFromVault(vaultKeystorePath.get)
+    val keyStoreOptions = if (vaultKeystorePath.isDefined
+      && vaultKeystorePassPath.isDefined) {
       
+      val (key, certs) = certName match {
+        case Some(cert) => VaultHelper.getCertKeyForAppFromVault(
+          vaultKeystorePath.get, certName.get)
+        case None => VaultHelper.getCertKeyForAppFromVault(vaultKeystorePath.get)
+      }
+
       pemToDer(key)
       generatePemFile(certs, "cert.crt")
       generatePemFile(trustStore, "ca.crt")

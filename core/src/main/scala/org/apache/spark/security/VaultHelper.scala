@@ -133,8 +133,18 @@ object VaultHelper extends Logging {
     )("pass").asInstanceOf[String]
   }
 
+  def getCertKeyForAppFromVault(vaultPath: String, certName: String): (String, String) = {
+    logDebug(s"Requesting specific cert key for App at: $vaultPath")
+    val requestUrl = s"${ConfigSecurity.vaultURI.get}/$vaultPath"
+    val data = HTTPHelper.executeGet(requestUrl,
+      "data", Some(Seq(("X-Vault-Token", ConfigSecurity.vaultToken.get))))
+    val certs = data(s"${certName}_crt").asInstanceOf[String]
+    val key = data(s"${certName}_key").asInstanceOf[String]
+    (key, certs)
+  }
+
   def getCertKeyForAppFromVault(vaultPath: String): (String, String) = {
-    logDebug(s"Requesting Cert Key For App: $vaultPath")
+    logDebug(s"Requesting cert key for App from directory at: $vaultPath")
     val requestUrl = s"${ConfigSecurity.vaultURI.get}/$vaultPath"
     val data = HTTPHelper.executeGet(requestUrl,
       "data", Some(Seq(("X-Vault-Token", ConfigSecurity.vaultToken.get))))
