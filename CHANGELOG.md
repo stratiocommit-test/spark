@@ -6,6 +6,7 @@
 * Vault connection certificates are obtained dynamically
 * KMS Utils dependency remove from Stratio Spark Dispatcher and History Server
 * Possibility of specifying the name of the certificate within a directory with multiple certificates
+* Add support to multiples CAs
 
 ## 2.2.0.5 (upcoming)
 
