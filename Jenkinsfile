@@ -1,4 +1,4 @@
-@Library('libpipelines@master') _
+@Library('libpipelines@preproduction') _
 
 hose {
     MAIL = 'support'
